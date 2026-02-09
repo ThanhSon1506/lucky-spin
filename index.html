@@ -4,31 +4,77 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Vòng xoay may mắn 1–1600</title>
+  <title>VÒNG QUAY MAY MẮN PHÒNG HÀNH CHÍNH ALPHA ECC</title>
+
   <style>
     :root {
-      --bg: #0b1220;
-      --muted: #9fb0d0;
-      --text: #eaf0ff;
-      --accent: #7c5cff;
-      --accent2: #27d6a5;
-      --danger: #ff4d6d;
+      --text: #fff4e6;
+      --muted: rgba(255, 244, 230, .75);
+
+      /* Tet palette */
+      --tet-red-1: #b30000;
+      --tet-red-2: #ff1f1f;
+      --tet-gold-1: #ffd36a;
+      --tet-gold-2: #ffb300;
+
+      --glass: rgba(255, 255, 255, 0.10);
+      --glass2: rgba(255, 255, 255, 0.06);
+      --shadow: rgba(0, 0, 0, 0.35);
     }
 
     * {
-      box-sizing: border-box
+      box-sizing: border-box;
     }
 
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 700px at 30% 20%, #18264b 0%, var(--bg) 55%, #050914 100%);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
+
+      /* nền ảnh Tết + màu phủ đỏ cho “tươi” */
+      background:
+        radial-gradient(900px 600px at 20% 10%, rgba(255, 225, 150, .16), rgba(0, 0, 0, 0) 55%),
+        radial-gradient(900px 650px at 85% 15%, rgba(255, 120, 120, .12), rgba(0, 0, 0, 0) 60%),
+        linear-gradient(180deg, rgba(140, 0, 0, .70), rgba(90, 0, 0, .78)),
+        url("https://vongquaymayman.co/wp-content/themes/twentytwentythree-child/assets/background/tet-1.jpg");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    /* bokeh overlay + vignette để giống ảnh mẫu hơn */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, .16) 0 60px, rgba(0, 0, 0, 0) 62px),
+        radial-gradient(circle at 55% 20%, rgba(255, 255, 255, .12) 0 80px, rgba(0, 0, 0, 0) 82px),
+        radial-gradient(circle at 80% 35%, rgba(255, 255, 255, .10) 0 65px, rgba(0, 0, 0, 0) 67px),
+        radial-gradient(circle at 30% 75%, rgba(255, 255, 255, .10) 0 95px, rgba(0, 0, 0, 0) 97px),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, .10) 0 120px, rgba(0, 0, 0, 0) 122px),
+        radial-gradient(1200px 800px at 50% 50%, rgba(0, 0, 0, .10), rgba(0, 0, 0, .35));
+      filter: blur(1px);
+      opacity: .65;
+      mix-blend-mode: screen;
+    }
+
+    /* overlay pháo hoa */
+    #fxCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      pointer-events: none;
+      z-index: 9999;
     }
 
     .app {
@@ -36,6 +82,8 @@
       display: grid;
       grid-template-columns: 1.2fr 0.8fr;
       gap: 18px;
+      position: relative;
+      z-index: 2;
     }
 
     @media (max-width: 900px) {
@@ -45,16 +93,17 @@
     }
 
     .card {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
-      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+      border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 18px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+      box-shadow: 0 12px 40px var(--shadow);
       overflow: hidden;
+      backdrop-filter: blur(8px);
     }
 
     .hd {
       padding: 16px 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -62,7 +111,7 @@
     }
 
     .title {
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .2px;
     }
 
@@ -82,20 +131,25 @@
       align-items: center;
       justify-content: center;
       padding: 12px 0 10px;
-
-      background-image: url("images/bg-wheel.png");
+      border-radius: 16px;
+      background-image: url("/images/bg-wheel.png");
+      background-position: center;
       background-size: cover;
-      background-position: right center;
-      background-repeat: no-repeat;
+      /* thêm glow đỏ/vàng cho khu vực vòng quay */
+      /* background:
+        radial-gradient(500px 320px at 50% 25%, rgba(255, 200, 120, .18), rgba(0, 0, 0, 0) 60%),
+        radial-gradient(560px 380px at 50% 70%, rgba(255, 70, 70, .16), rgba(0, 0, 0, 0) 62%); */
     }
 
-    canvas {
+    canvas#wheel {
       width: min(560px, 92vw);
       height: auto;
       aspect-ratio: 1/1;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-      box-shadow: inset 0 0 0 10px rgba(0, 0, 0, 0.25), 0 20px 50px rgba(0, 0, 0, 0.45);
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02));
+      box-shadow:
+        inset 0 0 0 10px rgba(0, 0, 0, 0.22),
+        0 20px 50px rgba(0, 0, 0, 0.45);
     }
 
     .pointer {
@@ -105,7 +159,7 @@
       height: 0;
       border-left: 18px solid transparent;
       border-right: 18px solid transparent;
-      border-top: 34px solid var(--danger);
+      border-top: 34px solid var(--tet-gold-2);
       filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
       z-index: 3;
     }
@@ -115,8 +169,9 @@
       width: 130px;
       height: 130px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
-      border: 1px solid rgba(255, 255, 255, 0.16);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 220, 160, 0.24), rgba(255, 255, 255, 0.06));
+      border: 1px solid rgba(255, 255, 255, 0.18);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -129,8 +184,8 @@
     }
 
     .center .big {
-      font-size: 24px;
-      font-weight: 900;
+      font-size: 26px;
+      font-weight: 950;
       line-height: 1.1;
     }
 
@@ -154,19 +209,56 @@
       justify-content: space-between;
     }
 
+    /* ===== NÚT “TẾT VUI VẺ” ===== */
     .btn {
       appearance: none;
       border: none;
       cursor: pointer;
-      padding: 12px 14px;
-      border-radius: 12px;
-      font-weight: 800;
-      color: var(--text);
-      background: linear-gradient(135deg, var(--accent), #4b86ff);
-      box-shadow: 0 10px 24px rgba(124, 92, 255, .25);
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-weight: 950;
+      letter-spacing: .3px;
+      color: #2a0909;
+      background: linear-gradient(135deg, var(--tet-gold-1), var(--tet-gold-2));
+      box-shadow: 0 12px 28px rgba(255, 179, 0, .20), 0 8px 20px rgba(0, 0, 0, .22);
       transition: transform .08s ease, filter .15s ease, opacity .15s ease;
       user-select: none;
       white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: "";
+      position: absolute;
+      top: -60%;
+      left: -40%;
+      width: 40%;
+      height: 220%;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .55), rgba(255, 255, 255, 0));
+      transform: rotate(25deg);
+      opacity: .55;
+      animation: shine 2.8s ease-in-out infinite;
+    }
+
+    @keyframes shine {
+      0% {
+        transform: translateX(-160%) rotate(25deg);
+        opacity: 0;
+      }
+
+      15% {
+        opacity: .6;
+      }
+
+      45% {
+        transform: translateX(340%) rotate(25deg);
+        opacity: .25;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     .btn:active {
@@ -174,15 +266,21 @@
     }
 
     .btn.secondary {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.06));
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08));
+      border: 1px solid rgba(255, 255, 255, 0.18);
       box-shadow: none;
-      font-weight: 750;
+      font-weight: 850;
+    }
+
+    .btn.secondary::after {
+      display: none;
     }
 
     .btn.danger {
-      background: linear-gradient(135deg, var(--danger), #ff8a5c);
-      box-shadow: 0 10px 24px rgba(255, 77, 109, .18);
+      color: #fff5e8;
+      background: linear-gradient(135deg, var(--tet-red-2), var(--tet-red-1));
+      box-shadow: 0 12px 28px rgba(255, 31, 31, .18), 0 8px 20px rgba(0, 0, 0, .22);
     }
 
     .btn:disabled {
@@ -197,8 +295,8 @@
       gap: 8px;
       padding: 10px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(0, 0, 0, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       color: var(--muted);
       font-size: 13px;
       white-space: nowrap;
@@ -272,7 +370,7 @@
 
     .history th {
       color: var(--muted);
-      font-weight: 700;
+      font-weight: 750;
       position: sticky;
       top: 0;
       background: rgba(0, 0, 0, 0.22);
@@ -280,7 +378,7 @@
     }
 
     .history td.num {
-      font-weight: 900;
+      font-weight: 950;
     }
 
     .badge {
@@ -328,15 +426,15 @@
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       background: rgba(255, 255, 255, 0.06);
-      font-weight: 900;
+      font-weight: 950;
       font-size: 16px;
-      color: rgba(255, 255, 255, 0.92);
+      color: rgba(255, 244, 230, 0.92);
       transform: scale(0.95);
       opacity: 0.85;
     }
 
     .strip .cell.active {
-      background: linear-gradient(135deg, rgba(39, 214, 165, 0.25), rgba(124, 92, 255, 0.25));
+      background: linear-gradient(135deg, rgba(255, 211, 106, 0.28), rgba(255, 31, 31, 0.20));
       border-color: rgba(255, 255, 255, 0.22);
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
       transform: scale(1.08);
@@ -351,6 +449,9 @@
 </head>
 
 <body>
+  <!-- FX pháo hoa -->
+  <canvas id="fxCanvas"></canvas>
+
   <div class="app">
     <!-- LEFT: WHEEL -->
     <div class="card">
@@ -372,7 +473,6 @@
           </div>
         </div>
 
-        <!-- ✅ Dải số chạy -->
         <div class="stripWrap" aria-live="polite">
           <div class="stripTitle">Dải số đang chạy (1–1600)</div>
           <div class="strip" id="strip"></div>
@@ -380,8 +480,8 @@
 
         <div class="controls">
           <div class="row">
-            <button class="btn" id="spinBtn">QUAY</button>
-            <button class="btn secondary" id="pickBtn">BỐC NGẪU NHIÊN (không quay)</button>
+            <button class="btn" id="spinBtn">QUAY 🎇</button>
+            <button class="btn secondary" id="pickBtn">BỐC NGẪU NHIÊN 🎁</button>
           </div>
 
           <div class="row">
@@ -392,13 +492,13 @@
               <label for="max">Max</label>
               <input id="max" type="number" value="1600" min="1" max="1600" step="1" />
             </div>
-            <button class="btn danger" id="resetBtn">RESET LỊCH SỬ</button>
+            <button class="btn danger" id="resetBtn">RESET 🧨</button>
           </div>
 
           <div class="hint">
-            - Nút <b>QUAY</b>: có animation giảm tốc + dừng đúng số.<br />
-            - Nút <b>BỐC</b>: ra số ngay (không animation).<br />
-            - Có lưu lịch sử ở bên phải.
+            - <b>QUAY</b>: animation giảm tốc + dừng đúng số.<br />
+            - <b>BỐC</b>: ra số ngay (không animation).<br />
+            - Lưu lịch sử bên phải.
           </div>
         </div>
       </div>
@@ -452,13 +552,9 @@
           const limit = Math.floor(maxUint / range) * range;
           const buf = new Uint32Array(1);
           let x;
-          do {
-            crypto.getRandomValues(buf);
-            x = buf[0];
-          } while (x >= limit);
+          do { crypto.getRandomValues(buf); x = buf[0]; } while (x >= limit);
           return min + (x % range);
         }
-
         return min + Math.floor(Math.random() * range);
       }
 
@@ -485,41 +581,40 @@
       const historyBody = $("historyBody");
       const countEl = $("count");
 
-      // ✅ strip element
       const stripEl = $("strip");
+
       // ===== AUDIO =====
-      // Bạn đặt file nhạc ở: sounds/spin.mp3 và sounds/win.mp3
+      // Đặt file:
+      // sounds/spin.mp3  (loop khi quay)
+      // sounds/win.mp3   (khi trúng)
+      // sounds/firework.mp3 (tuỳ chọn - tiếng pháo hoa)
       const spinSound = new Audio("sounds/spin.mp3");
       spinSound.loop = true;
-      spinSound.volume = 0.7;
+      spinSound.volume = 0.65;
 
-      const winSound = new Audio("sounds/win.mp3"); // optional
-      winSound.volume = 0.9;
+      const winSound = new Audio("sounds/win.mp3");
+      winSound.volume = 0.95;
+
+      const fireworkSound = new Audio("sounds/firework.mp3"); // optional
+      fireworkSound.volume = 0.85;
 
       function startSpinSound() {
-        // play phải nằm trong hành động click, spin() là click handler => OK
-        try {
-          spinSound.currentTime = 0;
-          spinSound.play().catch(() => { });
-        } catch { }
+        try { spinSound.currentTime = 0; spinSound.play().catch(() => { }); } catch { }
       }
       function stopSpinSound() {
-        try {
-          spinSound.pause();
-          spinSound.currentTime = 0;
-        } catch { }
+        try { spinSound.pause(); spinSound.currentTime = 0; } catch { }
       }
       function playWinSound() {
-        try {
-          winSound.currentTime = 0;
-          winSound.play().catch(() => { });
-        } catch { }
+        try { winSound.currentTime = 0; winSound.play().catch(() => { }); } catch { }
       }
+      function playFireworkSound() {
+        try { fireworkSound.currentTime = 0; fireworkSound.play().catch(() => { }); } catch { }
+      }
+
       let isSpinning = false;
       let angle = 0;
 
       const DECOR_SLICES = 24;
-
       const W = canvas.width, H = canvas.height;
       const cx = W / 2, cy = H / 2;
       const radius = Math.min(W, H) * 0.46;
@@ -532,7 +627,7 @@
         const cells = [];
         for (let i = -half; i <= half; i++) {
           let v = center + i;
-          v = ((v - min) % span + span) % span + min; // wrap
+          v = ((v - min) % span + span) % span + min;
           cells.push(v);
         }
 
@@ -596,25 +691,25 @@
           ctx.closePath();
 
           const alt = i % 2;
-          ctx.fillStyle = alt ? "rgba(124,92,255,0.35)" : "rgba(39,214,165,0.28)";
+          ctx.fillStyle = alt ? "rgba(255, 211, 106, 0.32)" : "rgba(255, 60, 60, 0.24)";
           ctx.fill();
 
-          ctx.strokeStyle = "rgba(255,255,255,0.12)";
+          ctx.strokeStyle = "rgba(255,255,255,0.14)";
           ctx.lineWidth = 2;
           ctx.stroke();
         }
 
         ctx.beginPath();
         ctx.arc(0, 0, radius * 0.62, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(0,0,0,0.25)";
+        ctx.fillStyle = "rgba(0,0,0,0.22)";
         ctx.fill();
         ctx.lineWidth = 6;
-        ctx.strokeStyle = "rgba(255,255,255,0.10)";
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
         ctx.stroke();
 
         const grd = ctx.createRadialGradient(-radius * 0.25, -radius * 0.25, radius * 0.05, 0, 0, radius);
-        grd.addColorStop(0, "rgba(255,255,255,0.20)");
-        grd.addColorStop(0.45, "rgba(255,255,255,0.05)");
+        grd.addColorStop(0, "rgba(255,255,255,0.22)");
+        grd.addColorStop(0.45, "rgba(255,255,255,0.06)");
         grd.addColorStop(1, "rgba(255,255,255,0.00)");
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, Math.PI * 2);
@@ -669,6 +764,120 @@
         return target;
       }
 
+      // ===== FIREWORKS FX (canvas overlay) =====
+      const fx = $("fxCanvas");
+      const fctx = fx.getContext("2d");
+      let fxW = 0, fxH = 0;
+
+      function resizeFx() {
+        fxW = fx.width = Math.floor(window.innerWidth * devicePixelRatio);
+        fxH = fx.height = Math.floor(window.innerHeight * devicePixelRatio);
+      }
+      window.addEventListener("resize", resizeFx);
+      resizeFx();
+
+      const sparks = [];
+      let fxRunning = false;
+      let fxEndAt = 0;
+
+      function addBurst(x, y, count = 120) {
+        // x,y in CSS pixels -> convert to device pixels
+        const px = x * devicePixelRatio;
+        const py = y * devicePixelRatio;
+
+        for (let i = 0; i < count; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const sp = 2 + Math.random() * 6;
+          const life = 40 + Math.random() * 30;
+
+          // màu tết (đỏ/vàng/trắng)
+          const palette = [
+            [255, 211, 106],
+            [255, 60, 60],
+            [255, 245, 230],
+            [255, 179, 0]
+          ];
+          const c = palette[(Math.random() * palette.length) | 0];
+
+          sparks.push({
+            x: px, y: py,
+            vx: Math.cos(a) * sp * devicePixelRatio,
+            vy: Math.sin(a) * sp * devicePixelRatio,
+            g: 0.12 * devicePixelRatio,
+            life,
+            ttl: life,
+            r: 1.2 + Math.random() * 2.6,
+            c
+          });
+        }
+      }
+
+      function startFireworks(durationMs = 1600) {
+        const now = performance.now();
+        fxEndAt = now + durationMs;
+        fxRunning = true;
+
+        // 2-3 burst đẹp (ngẫu nhiên)
+        const bursts = 3 + ((Math.random() * 2) | 0);
+        for (let i = 0; i < bursts; i++) {
+          const x = window.innerWidth * (0.2 + Math.random() * 0.6);
+          const y = window.innerHeight * (0.18 + Math.random() * 0.35);
+          addBurst(x, y, 110 + ((Math.random() * 80) | 0));
+        }
+
+        playFireworkSound();
+        if (!fxRAF) fxRAF = requestAnimationFrame(fxFrame);
+      }
+
+      let fxRAF = 0;
+      function fxFrame(t) {
+        // clear with slight fade for trail
+        fctx.save();
+        fctx.globalCompositeOperation = "source-over";
+        fctx.fillStyle = "rgba(0,0,0,0.22)";
+        fctx.fillRect(0, 0, fxW, fxH);
+        fctx.restore();
+
+        fctx.globalCompositeOperation = "lighter";
+
+        for (let i = sparks.length - 1; i >= 0; i--) {
+          const s = sparks[i];
+          s.vy += s.g;
+          s.x += s.vx;
+          s.y += s.vy;
+          s.life -= 1;
+
+          const k = Math.max(0, s.life / s.ttl);
+          const alpha = 0.9 * k;
+
+          fctx.beginPath();
+          fctx.fillStyle = `rgba(${s.c[0]},${s.c[1]},${s.c[2]},${alpha})`;
+          fctx.arc(s.x, s.y, s.r * devicePixelRatio, 0, Math.PI * 2);
+          fctx.fill();
+
+          if (s.life <= 0) sparks.splice(i, 1);
+        }
+
+        const alive = sparks.length > 0;
+        const keep = t < fxEndAt;
+
+        if (alive || keep) {
+          fxRAF = requestAnimationFrame(fxFrame);
+        } else {
+          fxRunning = false;
+          fxRAF = 0;
+          // clear hoàn toàn
+          fctx.clearRect(0, 0, fxW, fxH);
+        }
+      }
+
+      // ===== End FX helper =====
+      function celebrate() {
+        // tránh spam quá nhiều nếu bấm liên tục
+        if (!fxRunning) startFireworks(1700);
+        else startFireworks(1200);
+      }
+
       function spin() {
         if (isSpinning) return;
         const { min, max } = clampRange();
@@ -693,7 +902,6 @@
 
         function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
-        // ✅ rolling strip (đồng bộ với duration)
         let rollValue = secureRandomInt(min, max);
         function stripFrame(now) {
           const t = (now - t0) / duration;
@@ -728,10 +936,12 @@
             drawWheel();
 
             centerNumber.textContent = String(picked);
-            centerText.textContent = "Trúng thưởng 🎉";
+            centerText.textContent = "Tết vui trúng số! 🎉";
             lastResult.textContent = String(picked);
+
             stopSpinSound();
             playWinSound();
+            celebrate();                 // ✅ pháo hoa khi quay xong
             pushHistory(picked, "quay");
             setBusy(false);
           }
@@ -749,12 +959,13 @@
         drawWheel();
 
         centerNumber.textContent = String(picked);
-        centerText.textContent = "Bốc ngay";
+        centerText.textContent = "Lì xì may mắn 🎁";
         lastResult.textContent = String(picked);
 
-        // ✅ update strip ngay
         renderStrip(picked, min, max, 11);
 
+        playWinSound();
+        celebrate();                   // ✅ pháo hoa khi bốc ngay
         pushHistory(picked, "bốc");
       }
 
