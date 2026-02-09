@@ -831,12 +831,7 @@
 
       let fxRAF = 0;
       function fxFrame(t) {
-        // clear with slight fade for trail
-        fctx.save();
-        fctx.globalCompositeOperation = "source-over";
-        fctx.fillStyle = "rgba(0,0,0,0.22)";
-        fctx.fillRect(0, 0, fxW, fxH);
-        fctx.restore();
+        fctx.clearRect(0, 0, fxW, fxH); // không phủ đen
 
         fctx.globalCompositeOperation = "lighter";
 
@@ -848,7 +843,7 @@
           s.life -= 1;
 
           const k = Math.max(0, s.life / s.ttl);
-          const alpha = 0.9 * k;
+          const alpha = 0.95 * k;
 
           fctx.beginPath();
           fctx.fillStyle = `rgba(${s.c[0]},${s.c[1]},${s.c[2]},${alpha})`;
@@ -861,12 +856,10 @@
         const alive = sparks.length > 0;
         const keep = t < fxEndAt;
 
-        if (alive || keep) {
-          fxRAF = requestAnimationFrame(fxFrame);
-        } else {
+        if (alive || keep) fxRAF = requestAnimationFrame(fxFrame);
+        else {
           fxRunning = false;
           fxRAF = 0;
-          // clear hoàn toàn
           fctx.clearRect(0, 0, fxW, fxH);
         }
       }
