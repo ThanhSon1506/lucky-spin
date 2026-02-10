@@ -584,10 +584,6 @@
       const stripEl = $("strip");
 
       // ===== AUDIO =====
-      // Đặt file:
-      // sounds/spin.mp3  (loop khi quay)
-      // sounds/win.mp3   (khi trúng)
-      // sounds/firework.mp3 (tuỳ chọn - tiếng pháo hoa)
       const spinSound = new Audio("sounds/spin.mp3");
       spinSound.loop = true;
       spinSound.volume = 0.65;
@@ -606,9 +602,6 @@
       }
       function playWinSound() {
         try { winSound.currentTime = 0; winSound.play().catch(() => { }); } catch { }
-      }
-      function playFireworkSound() {
-        try { fireworkSound.currentTime = 0; fireworkSound.play().catch(() => { }); } catch { }
       }
 
       let isSpinning = false;
@@ -637,7 +630,7 @@
         }).join("");
       }
 
-      // ===== Storage =====
+      // ===== Storage (History) =====
       const STORAGE_KEY = "lucky_wheel_history_v1";
       let history = [];
       try {
@@ -661,16 +654,86 @@
         historyBody.innerHTML = history.map((h, idx) => {
           const d = new Date(h.t);
           return `
-            <tr>
-              <td>${history.length - idx}</td>
-              <td class="num">${h.num}</td>
-              <td><span class="badge">${h.type}</span></td>
-              <td class="mono">${fmtTime(d)}</td>
-            </tr>
-          `;
+          <tr>
+            <td>${history.length - idx}</td>
+            <td class="num">${h.num}</td>
+            <td><span class="badge">${h.type}</span></td>
+            <td class="mono">${fmtTime(d)}</td>
+          </tr>
+        `;
         }).join("");
         countEl.textContent = String(history.length);
         lastResult.textContent = history[0]?.num ?? "—";
+      }
+
+      // ===== Unique numbers (NO REPEAT until RESET) =====
+      const AVAILABLE_KEY = "lucky_wheel_available_v1";
+      let available = new Set();
+
+      function rangeKey(min, max) { return `${min}-${max}`; }
+
+      function buildAvailable(min, max, excludeNums = []) {
+        const s = new Set();
+        for (let v = min; v <= max; v++) s.add(v);
+        for (const n of excludeNums) s.delete(n);
+        return s;
+      }
+
+      function saveAvailable(min, max) {
+        try {
+          localStorage.setItem(AVAILABLE_KEY, JSON.stringify({
+            range: rangeKey(min, max),
+            nums: Array.from(available)
+          }));
+        } catch { }
+      }
+
+      function loadAvailable(min, max) {
+        // Nếu range giống lần trước thì load pool; không giống thì rebuild theo history
+        try {
+          const raw = localStorage.getItem(AVAILABLE_KEY);
+          if (raw) {
+            const obj = JSON.parse(raw);
+            if (obj?.range === rangeKey(min, max) && Array.isArray(obj.nums)) {
+              available = new Set(obj.nums.map(n => parseInt(n, 10)).filter(Number.isFinite));
+              // lọc lại theo range
+              for (const n of Array.from(available)) {
+                if (n < min || n > max) available.delete(n);
+              }
+              return;
+            }
+          }
+        } catch { }
+
+        const used = history
+          .map(h => parseInt(h?.num, 10))
+          .filter(Number.isFinite);
+
+        available = buildAvailable(min, max, used);
+        saveAvailable(min, max);
+      }
+
+      function availableCount() {
+        return available.size;
+      }
+
+      function drawFromAvailable(min, max) {
+        if (available.size <= 0) return null;
+        const idx = secureRandomInt(0, available.size - 1);
+        let i = 0;
+        for (const n of available) {
+          if (i === idx) return n;
+          i++;
+        }
+        return null;
+      }
+
+      function commitPick(num, min, max) {
+        available.delete(num);
+        saveAvailable(min, max);
+        if (available.size === 0) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+        }
       }
 
       // ===== Wheel drawing =====
@@ -732,6 +795,9 @@
         minEl.disabled = busy;
         maxEl.disabled = busy;
         statusPill.textContent = busy ? "Đang quay..." : "Sẵn sàng";
+        if (!busy && availableCount() === 0) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+        }
       }
 
       function clampRange() {
@@ -780,7 +846,6 @@
       let fxRunning = false;
       let fxRAF = 0;
 
-      // bắn liên tục theo nhạc
       let burstTimer = 0;
       let stopTimer = 0;
 
@@ -791,7 +856,7 @@
         for (let i = 0; i < count; i++) {
           const a = Math.random() * Math.PI * 2;
           const sp = 2 + Math.random() * 6;
-          const life = 45 + Math.random() * 45; // dài hơn 1 chút để nhìn “đã” hơn
+          const life = 45 + Math.random() * 45;
 
           const palette = [
             [255, 211, 106],
@@ -815,36 +880,23 @@
       }
 
       function startFireworksToMusic() {
-        // restart nhạc pháo
-        try {
-          fireworkSound.pause();
-          fireworkSound.currentTime = 0;
-        } catch { }
+        try { fireworkSound.pause(); fireworkSound.currentTime = 0; } catch { }
 
-        // nếu nhạc chưa load kịp duration thì vẫn chạy theo onended
-        // dừng mọi timer cũ
         if (burstTimer) clearInterval(burstTimer);
         if (stopTimer) clearTimeout(stopTimer);
         burstTimer = 0;
         stopTimer = 0;
 
         fxRunning = true;
-
-        // bắn ngay 1 nhịp cho “đã”
         shootBurstWave();
 
-        // bắn theo nhịp (tùy chỉnh tốc độ bắn ở đây)
-        // 180–260ms thường hợp tai với tiếng pháo (bạn đổi tùy thích)
         burstTimer = setInterval(() => {
-          // nếu nhạc đã dừng thì không bắn nữa
           if (fireworkSound.paused || fireworkSound.ended) return;
           shootBurstWave();
         }, 220);
 
-        // khi nhạc kết thúc -> dừng bắn
         fireworkSound.onended = () => stopFireworks();
 
-        // fallback: nếu có duration thì set timeout dừng đúng lúc (đề phòng onended không bắn)
         try {
           const d = fireworkSound.duration;
           if (Number.isFinite(d) && d > 0) {
@@ -852,15 +904,12 @@
           }
         } catch { }
 
-        // play audio
         try { fireworkSound.play().catch(() => { }); } catch { }
 
-        // đảm bảo animation loop chạy
         if (!fxRAF) fxRAF = requestAnimationFrame(fxFrame);
       }
 
       function shootBurstWave() {
-        // mỗi “wave” bắn 2–4 burst rải trên màn
         const bursts = 2 + ((Math.random() * 3) | 0);
         for (let i = 0; i < bursts; i++) {
           const x = window.innerWidth * (0.18 + Math.random() * 0.64);
@@ -870,19 +919,12 @@
       }
 
       function stopFireworks() {
-        // dừng bắn mới, nhưng cho hạt đang bay rơi hết thì tự tắt
         fxRunning = false;
 
         if (burstTimer) clearInterval(burstTimer);
         if (stopTimer) clearTimeout(stopTimer);
         burstTimer = 0;
         stopTimer = 0;
-
-        try {
-          // không bắt buộc pause nhạc ở đây vì đã ended,
-          // nhưng nếu bạn muốn stop ngay khi gọi stopFireworks:
-          // fireworkSound.pause(); fireworkSound.currentTime = 0;
-        } catch { }
       }
 
       function fxFrame() {
@@ -907,7 +949,6 @@
           if (s.life <= 0) sparks.splice(i, 1);
         }
 
-        // chạy tiếp nếu: còn hạt hoặc vẫn đang “mode nhạc”
         if (sparks.length > 0 || fxRunning) {
           fxRAF = requestAnimationFrame(fxFrame);
         } else {
@@ -916,9 +957,7 @@
         }
       }
 
-      // helper gọi pháo hoa theo nhạc
       function celebrate() {
-        // nếu đang chạy mà user bấm lại, restart nhạc + restart bắn
         startFireworksToMusic();
       }
 
@@ -927,7 +966,19 @@
         const { min, max } = clampRange();
         if (max < min) return;
 
-        const picked = secureRandomInt(min, max);
+        // load pool theo range hiện tại
+        loadAvailable(min, max);
+
+        if (availableCount() <= 0) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+          return;
+        }
+
+        const picked = drawFromAvailable(min, max);
+        if (picked == null) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+          return;
+        }
 
         const targetBase = numberToStopAngle(picked, min, max);
         const extraTurns = secureRandomInt(5, 9);
@@ -985,8 +1036,11 @@
 
             stopSpinSound();
             playWinSound();
-            celebrate();                 // ✅ pháo hoa khi quay xong
+            celebrate();
+
+            commitPick(picked, min, max);  // ✅ loại khỏi pool (không trúng lại)
             pushHistory(picked, "quay");
+
             setBusy(false);
           }
         }
@@ -996,7 +1050,19 @@
       function pickInstant() {
         if (isSpinning) return;
         const { min, max } = clampRange();
-        const picked = secureRandomInt(min, max);
+
+        loadAvailable(min, max);
+
+        if (availableCount() <= 0) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+          return;
+        }
+
+        const picked = drawFromAvailable(min, max);
+        if (picked == null) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+          return;
+        }
 
         const targetBase = numberToStopAngle(picked, min, max);
         angle = targetBase;
@@ -1009,22 +1075,37 @@
         renderStrip(picked, min, max, 11);
 
         playWinSound();
-        celebrate();                   // ✅ pháo hoa khi bốc ngay
+        celebrate();
+
+        commitPick(picked, min, max);     // ✅ loại khỏi pool (không trúng lại)
         pushHistory(picked, "bốc");
+
+        if (availableCount() === 0) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+        }
       }
 
       function resetHistory() {
         if (isSpinning) return;
         stopSpinSound();
+
         history = [];
         saveHistory();
         renderHistory();
+
         centerNumber.textContent = "—";
         centerText.textContent = "Kết quả";
         lastResult.textContent = "—";
 
         const { min, max } = clampRange();
-        renderStrip(secureRandomInt(min, max), min, max, 11);
+
+        // ✅ reset pool lại từ đầu theo range hiện tại
+        available = buildAvailable(min, max, []);
+        saveAvailable(min, max);
+        statusPill.textContent = "Sẵn sàng";
+
+        const seed = drawFromAvailable(min, max) ?? min;
+        renderStrip(seed, min, max, 11);
       }
 
       // ===== Events =====
@@ -1035,21 +1116,33 @@
       [minEl, maxEl].forEach(el => {
         el.addEventListener("change", () => {
           const { min, max } = clampRange();
-          renderStrip(secureRandomInt(min, max), min, max, 11);
+          loadAvailable(min, max);
+          const seed = drawFromAvailable(min, max) ?? min;
+          renderStrip(seed, min, max, 11);
+          if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
         });
         el.addEventListener("blur", () => {
           const { min, max } = clampRange();
-          renderStrip(secureRandomInt(min, max), min, max, 11);
+          loadAvailable(min, max);
+          const seed = drawFromAvailable(min, max) ?? min;
+          renderStrip(seed, min, max, 11);
+          if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
         });
       });
 
       // ===== Init =====
       const initRange = clampRange();
       renderHistory();
+      loadAvailable(initRange.min, initRange.max);
       drawWheel();
-      renderStrip(secureRandomInt(initRange.min, initRange.max), initRange.min, initRange.max, 11);
+
+      const seed = drawFromAvailable(initRange.min, initRange.max) ?? initRange.min;
+      renderStrip(seed, initRange.min, initRange.max, 11);
+
+      if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
     })();
   </script>
+
 </body>
 
 </html>
