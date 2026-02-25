@@ -937,7 +937,7 @@
                 const innerRingRadius = radius * 0.32;
 
                 // ✅ CLIP donut: chữ chỉ được vẽ từ rInner -> rOuter
-                const rInner = innerRingRadius ;
+                const rInner = innerRingRadius;
                 const padAng = sliceAngle * 0.01;
 
                 for (let i = 0; i < SLICES; i++) {
@@ -968,7 +968,10 @@
                     ctx.clip();
 
                     // ===== TEXT (radial + wrap) =====
-                    const text = availableItems[i] ?? "";
+                    const text = String(availableItems[i] ?? "")
+                        .replace(/\s*\r?\n\s*/g, " ")
+                        .trim();
+
                     if (text) {
                         ctx.save();
                         ctx.rotate(mid);
@@ -981,22 +984,17 @@
                         let fontSize = baseFont;
 
                         ctx.fillStyle = "rgba(255,244,230,0.92)";
-                        ctx.textAlign = "center";
                         ctx.textBaseline = "middle";
 
-                        // ✅ QUAN TRỌNG: bắt đầu chữ từ NGOÀI vùng clip trong
-                        const rStart = rInner + 8;      // <-- sửa lỗi “mất nửa”
-                        const rEnd = rOuter - 12;
-                        const xCenter = (rStart + rEnd) / 2;
+                        const rStart = rInner + 14;   // bắt đầu chữ từ ngoài vùng clip
+                        const rEnd = rOuter - 14;
 
-                        // Độ rộng dòng theo “độ dày lát” tại bán kính giữa
-                        const rMid = xCenter;
-                        const maxLineWidth = Math.max(90, (sliceAngle - padAng * 2) * rMid * 1.08);
+                        // ✅ width theo hướng radial
+                        const maxLineWidth = Math.max(140, rEnd - rStart);
 
-                        // Wrap theo từ
                         ctx.font = `900 ${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-                        let lines = wrapByWidth(ctx, text, maxLineWidth);
 
+                        let lines = wrapByWidth(ctx, text, maxLineWidth);
                         const maxLines = SLICES >= 12 ? 3 : 4;
 
                         // Nếu nhiều dòng quá -> giảm font rồi wrap lại
@@ -1020,16 +1018,19 @@
                         const lineH = fontSize + lineGap;
                         const blockH = lines.length * lineH;
 
-                        // x theo bán kính, y xếp dòng theo phương tiếp tuyến
                         let y = -(blockH / 2) + lineH / 2;
+
+                        // ✅ FIX: flip -> vẽ về phía X âm + canh phải (tránh “mất nửa bên trong”)
+                        const x = flip ? -rStart : rStart;
+                        ctx.textAlign = flip ? "right" : "left";
+
                         for (const ln of lines) {
-                            ctx.fillText(ln, xCenter, y);
+                            ctx.fillText(ln, x, y);
                             y += lineH;
                         }
 
                         ctx.restore();
                     }
-
                     ctx.restore(); // clip
                 }
 
