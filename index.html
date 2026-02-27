@@ -7,22 +7,22 @@
   <title>VÒNG QUAY MAY MẮN PHÒNG HÀNH CHÍNH ALPHA ECC</title>
 
   <style>
-   :root {
-            --text: #fff6fb;
-            --muted: rgba(255, 246, 251, .72);
+    :root {
+      --text: #fff6fb;
+      --muted: rgba(255, 246, 251, .72);
 
-            --pink-1: #ff77b7;
-            --pink-2: #ff4aa2;
-            --magenta-1: #b02764;
-            --magenta-2: #7a0f43;
+      --pink-1: #ff77b7;
+      --pink-2: #ff4aa2;
+      --magenta-1: #b02764;
+      --magenta-2: #7a0f43;
 
-            --tet-gold-1: #ffe1b5;
-            --tet-gold-2: #ffbf6a;
+      --tet-gold-1: #ffe1b5;
+      --tet-gold-2: #ffbf6a;
 
-            --glass: rgba(255, 255, 255, .10);
-            --glass2: rgba(255, 255, 255, .06);
-            --shadow: rgba(0, 0, 0, .35);
-        }
+      --glass: rgba(255, 255, 255, .10);
+      --glass2: rgba(255, 255, 255, .06);
+      --shadow: rgba(0, 0, 0, .35);
+    }
 
     * {
       box-sizing: border-box;
@@ -193,10 +193,30 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: pointer;
       text-align: center;
       padding: 10px;
       z-index: 2;
+    }
+
+    .center {
+      transition: transform .15s ease, box-shadow .2s ease;
+    }
+
+    .center:hover {
+      transform: scale(1.06);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, .45);
+    }
+
+    .center:active {
+      transform: scale(0.96);
+    }
+
+    .center.disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none !important;
     }
 
     .center .big {
@@ -483,9 +503,9 @@
         <div class="wheelWrap">
           <div class="pointer" aria-hidden="true"></div>
           <canvas id="wheel" width="900" height="900"></canvas>
-          <div class="center">
-            <div class="big" id="centerNumber">—</div>
-            <div class="small" id="centerText">Kết quả</div>
+          <div class="center" id="centerSpinBtn" role="button" tabindex="0" aria-label="Quay">
+            <div class="big" id="centerNumber">QUAY</div>
+            <div class="small" id="centerText">Nhấn để bắt đầu</div>
           </div>
         </div>
 
@@ -586,7 +606,7 @@
       const spinBtn = $("spinBtn");
       const pickBtn = $("pickBtn");
       const resetBtn = $("resetBtn");
-
+      const centerSpinBtn = $("centerSpinBtn");
       const minEl = $("min");
       const maxEl = $("max");
 
@@ -810,6 +830,10 @@
         pickBtn.disabled = busy;
         minEl.disabled = busy;
         maxEl.disabled = busy;
+
+        if (centerSpinBtn) centerSpinBtn.classList.toggle("disabled", busy); 
+        if (centerSpinBtn) centerSpinBtn.style.pointerEvents = busy ? "none" : "auto"; 
+
         statusPill.textContent = busy ? "Đang quay..." : "Sẵn sàng";
         if (!busy && availableCount() === 0) {
           statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
@@ -1047,14 +1071,14 @@
             drawWheel();
 
             centerNumber.textContent = String(picked);
-            centerText.textContent = "Tết vui trúng số! 🎉";
+            centerText.textContent = "";
             lastResult.textContent = String(picked);
 
             stopSpinSound();
             playWinSound();
             celebrate();
 
-            commitPick(picked, min, max);  // ✅ loại khỏi pool (không trúng lại)
+            commitPick(picked, min, max);  
             pushHistory(picked, "quay");
 
             setBusy(false);
@@ -1128,7 +1152,17 @@
       spinBtn.addEventListener("click", spin);
       pickBtn.addEventListener("click", pickInstant);
       resetBtn.addEventListener("click", resetHistory);
+      if (centerSpinBtn) {
+        centerSpinBtn.addEventListener("click", spin);
 
+        // Enter/Space cũng quay (như nút)
+        centerSpinBtn.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            spin();
+          }
+        });
+      }
       [minEl, maxEl].forEach(el => {
         el.addEventListener("change", () => {
           const { min, max } = clampRange();
