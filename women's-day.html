@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>VÒNG QUAY MAY MẮN PHÒNG HÀNH CHÍNH ALPHA ECC</title>
+    <title>VÒNG QUAY NỮ THẦN</title>
 
     <style>
         :root {
@@ -545,6 +545,83 @@
             padding: 14px 18px 18px;
             border-top: 1px solid rgba(255, 255, 255, .14);
         }
+
+        .center {
+            transition: transform .15s ease, box-shadow .2s ease;
+        }
+
+        .center:hover {
+            transform: scale(1.06);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .center:active {
+            transform: scale(0.96);
+        }
+
+        .center.disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Settings modal nhỏ gọn */
+        .settingsRow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .10);
+        }
+
+        .settingsRow:last-child {
+            border-bottom: none;
+        }
+
+        .settingsRow label {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 750;
+        }
+
+        .toggle {
+            width: 44px;
+            height: 26px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .18);
+            background: rgba(0, 0, 0, .22);
+            position: relative;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+
+        .toggle input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .toggle::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--tet-gold-1), var(--tet-gold-2));
+            transition: transform .18s ease;
+        }
+
+        .toggle.on::after {
+            transform: translateX(18px);
+        }
     </style>
 </head>
 
@@ -560,16 +637,20 @@
                     <div class="title">Vòng xoay may mắn</div>
                     <div class="sub">Quay thử thách 8.3 (không lặp nếu bạn chọn “xóa”)</div>
                 </div>
-                <div class="pill" id="statusPill">Sẵn sàng</div>
-            </div>
 
+                <div class="row" style="justify-content:flex-end; gap:10px;">
+                    <div class="pill" id="statusPill">Sẵn sàng</div>
+                    <button class="pill" id="settingsBtn" type="button">⚙️</button>
+
+                </div>
+            </div>
             <div class="bd">
                 <div class="wheelWrap">
                     <div class="pointer" aria-hidden="true"></div>
                     <canvas id="wheel" width="900" height="900"></canvas>
-                    <div class="center">
-                        <div class="big" id="centerNumber">—</div>
-                        <div class="small" id="centerText">Kết quả</div>
+                    <div class="center" id="centerSpinBtn">
+                        <div class="big" id="centerNumber">QUAY</div>
+                        <div class="small" id="centerText">Nhấn để bắt đầu</div>
                     </div>
                 </div>
 
@@ -618,18 +699,20 @@
                 <div class="result">
                     <div class="k">Kết quả gần nhất</div>
                     <div class="v" id="lastResult">—</div>
-                    <div class="k">Danh sách thử thách (mỗi dòng = 1 mục)</div>
+                    <div id="itemsPanel">
+                        <div class="k">Danh sách thử thách (mỗi dòng = 1 mục)</div>
 
-                    <textarea id="itemsInput" rows="9" class="itemsInput"
-                        placeholder="Mỗi dòng là 1 thử thách..."></textarea>
+                        <textarea id="itemsInput" rows="9" class="itemsInput"
+                            placeholder="Mỗi dòng là 1 thử thách..."></textarea>
 
-                    <div class="row" style="margin-top:10px;">
-                        <button class="btn secondary" id="loadDefaultBtn">Nạp mặc định</button>
-                        <button class="btn" id="saveItemsBtn">Lưu danh sách</button>
-                    </div>
+                        <div class="row" style="margin-top:10px;">
+                            <button class="btn secondary" id="loadDefaultBtn">Nạp mặc định</button>
+                            <button class="btn" id="saveItemsBtn">Lưu danh sách</button>
+                        </div>
 
-                    <div class="hint" style="margin-top:8px;">
-                        Lưu xong sẽ thay pool hiện tại. Lịch sử không bị xóa (RESET mới xóa lịch sử).
+                        <div class="hint" style="margin-top:8px;">
+                            Lưu xong sẽ thay pool hiện tại. Lịch sử không bị xóa (RESET mới xóa lịch sử).
+                        </div>
                     </div>
                 </div>
 
@@ -662,13 +745,45 @@
             </div>
 
             <div class="modal__body">
-                <div class="modal__icon">✅</div>
+                <div class="modal__icon"></div>
                 <div class="modal__title" id="modalTitle">—</div>
             </div>
 
             <div class="modal__actions">
                 <button class="btn danger" id="modalRemoveBtn">Xóa ô này</button>
                 <button class="btn secondary" id="modalCloseBtn">Đóng lại</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="settingsModal" aria-hidden="true">
+        <div class="modal__backdrop" data-close-settings="1"></div>
+
+        <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+            <button class="modal__x" type="button" data-close-settings="1" aria-label="Đóng">✕</button>
+
+            <div class="modal__head">
+                <div class="title" id="settingsTitle">Cài đặt hiển thị</div>
+                <div class="sub">Bật/tắt các khu vực giao diện</div>
+            </div>
+
+            <div class="modal__body" style="text-align:left;">
+                <div class="settingsRow">
+                    <label for="toggleStrip">Hiện “Dải thử thách đang chạy”</label>
+                    <div class="toggle" id="toggleStripWrap">
+                        <input type="checkbox" id="toggleStrip" />
+                    </div>
+                </div>
+
+                <div class="settingsRow">
+                    <label for="toggleItems">Hiện “Danh sách thử thách”</label>
+                    <div class="toggle" id="toggleItemsWrap">
+                        <input type="checkbox" id="toggleItems" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal__actions">
+                <button class="btn secondary" id="settingsCloseBtn" type="button">Đóng</button>
             </div>
         </div>
     </div>
@@ -827,7 +942,63 @@
                     resultModal.setAttribute("aria-hidden", "true");
                 }
             }
+            // ===== SETTINGS =====
+            const settingsBtn = $("settingsBtn");
+            const settingsModal = $("settingsModal");
+            const settingsCloseBtn = $("settingsCloseBtn");
 
+            const toggleStrip = $("toggleStrip");
+            const toggleItems = $("toggleItems");
+
+            const toggleStripWrap = $("toggleStripWrap");
+            const toggleItemsWrap = $("toggleItemsWrap");
+
+            const stripWrap = document.querySelector(".stripWrap");
+            const itemsPanel = $("itemsPanel");
+
+            const UI_PREF_KEY = "wheel_83_ui_prefs_v1";
+
+            function openSettings() {
+                if (!settingsModal) return;
+                settingsModal.classList.add("show");
+                settingsModal.setAttribute("aria-hidden", "false");
+            }
+            function closeSettings() {
+                if (!settingsModal) return;
+                settingsModal.classList.remove("show");
+                settingsModal.setAttribute("aria-hidden", "true");
+            }
+
+            function setToggleUI(wrapEl, checked) {
+                if (!wrapEl) return;
+                wrapEl.classList.toggle("on", !!checked);
+            }
+
+            function applyPrefs(prefs) {
+                const showStrip = prefs?.showStrip ?? true;
+                const showItems = prefs?.showItems ?? true;
+
+                if (stripWrap) stripWrap.classList.toggle("hidden", !showStrip);
+                if (itemsPanel) itemsPanel.classList.toggle("hidden", !showItems);
+
+                if (toggleStrip) toggleStrip.checked = !!showStrip;
+                if (toggleItems) toggleItems.checked = !!showItems;
+
+                setToggleUI(toggleStripWrap, showStrip);
+                setToggleUI(toggleItemsWrap, showItems);
+            }
+
+            function loadPrefs() {
+                try {
+                    const raw = localStorage.getItem(UI_PREF_KEY);
+                    if (raw) return JSON.parse(raw);
+                } catch { }
+                return { showStrip: true, showItems: true };
+            }
+
+            function savePrefs(prefs) {
+                try { localStorage.setItem(UI_PREF_KEY, JSON.stringify(prefs)); } catch { }
+            }
             // ===== Items =====
             const DEFAULT_ITEMS = [
                 "Mời tất cả cùng nâng ly 🥂",
@@ -1063,6 +1234,10 @@
                 if (saveItemsBtn) saveItemsBtn.disabled = busy;
                 if (loadDefaultBtn) loadDefaultBtn.disabled = busy;
                 if (itemsInput) itemsInput.disabled = busy;
+                const centerSpinBtn = document.getElementById("centerSpinBtn");
+                if (centerSpinBtn) {
+                    centerSpinBtn.classList.toggle("disabled", busy);
+                }
 
                 if (availableItems.length <= 0) {
                     statusPill.textContent = "Hết mục (bấm RESET để bắt đầu lại)";
@@ -1430,7 +1605,42 @@
                     alert(`Đã lưu ${items.length} mục.`);
                 });
             }
+            // Settings events
+            if (settingsBtn) settingsBtn.addEventListener("click", openSettings);
+            if (settingsCloseBtn) settingsCloseBtn.addEventListener("click", closeSettings);
 
+            if (settingsModal) {
+                settingsModal.addEventListener("click", (e) => {
+                    const el = e.target;
+                    if (el && el.getAttribute && el.getAttribute("data-close-settings") === "1") {
+                        closeSettings();
+                    }
+                });
+            }
+
+            function onPrefsChanged() {
+                const prefs = {
+                    showStrip: !!toggleStrip?.checked,
+                    showItems: !!toggleItems?.checked,
+                };
+                savePrefs(prefs);
+                applyPrefs(prefs);
+            }
+
+            if (toggleStrip) toggleStrip.addEventListener("change", onPrefsChanged);
+            if (toggleItems) toggleItems.addEventListener("change", onPrefsChanged);
+
+            // cho đẹp: click vào toggleWrap cũng đổi
+            if (toggleStripWrap) toggleStripWrap.addEventListener("click", () => {
+                if (!toggleStrip) return;
+                toggleStrip.checked = !toggleStrip.checked;
+                onPrefsChanged();
+            });
+            if (toggleItemsWrap) toggleItemsWrap.addEventListener("click", () => {
+                if (!toggleItems) return;
+                toggleItems.checked = !toggleItems.checked;
+                onPrefsChanged();
+            });
             // ===== Button events =====
             spinBtn.addEventListener("click", spin);
             pickBtn.addEventListener("click", pickInstant);
@@ -1467,7 +1677,7 @@
 
             loadItems();
             drawWheel();
-
+            applyPrefs(loadPrefs());
             if (availableItems.length) {
                 renderStripByIndex(secureRandomInt(0, availableItems.length - 1), 9);
                 statusPill.textContent = "Sẵn sàng";
@@ -1475,13 +1685,16 @@
                 statusPill.textContent = "Hết mục (bấm RESET để bắt đầu lại)";
                 stripEl.innerHTML = "";
             }
+            const centerSpinBtn = document.getElementById("centerSpinBtn");
+
+            if (centerSpinBtn) {
+                centerSpinBtn.addEventListener("click", () => {
+                    const event = new Event("click");
+                    document.getElementById("spinBtn").dispatchEvent(event);
+                });
+            }
         })();
-        const centerEl = document.querySelector(".center");
-        if (centerEl) {
-            centerEl.addEventListener("click", () => {
-                if (!isSpinning) spin();   // bấm tâm = quay
-            });
-        }
+
     </script>
 </body>
 
