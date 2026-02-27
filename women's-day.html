@@ -8,18 +8,20 @@
 
     <style>
         :root {
-            --text: #fff4e6;
-            --muted: rgba(255, 244, 230, .75);
+            --text: #fff6fb;
+            --muted: rgba(255, 246, 251, .72);
 
-            /* Tet palette */
-            --tet-red-1: #b30000;
-            --tet-red-2: #ff1f1f;
-            --tet-gold-1: #ffd36a;
-            --tet-gold-2: #ffb300;
+            --pink-1: #ff77b7;
+            --pink-2: #ff4aa2;
+            --magenta-1: #b02764;
+            --magenta-2: #7a0f43;
 
-            --glass: rgba(255, 255, 255, 0.10);
-            --glass2: rgba(255, 255, 255, 0.06);
-            --shadow: rgba(0, 0, 0, 0.35);
+            --tet-gold-1: #ffe1b5;
+            --tet-gold-2: #ffbf6a;
+
+            --glass: rgba(255, 255, 255, .10);
+            --glass2: rgba(255, 255, 255, .06);
+            --shadow: rgba(0, 0, 0, .35);
         }
 
         * {
@@ -36,14 +38,27 @@
             justify-content: center;
             padding: 24px;
 
-            /* nền ảnh Tết + màu phủ đỏ cho “tươi” */
+
             background:
-                radial-gradient(900px 600px at 20% 10%, rgba(255, 225, 150, .16), rgba(0, 0, 0, 0) 55%),
-                radial-gradient(900px 650px at 85% 15%, rgba(255, 120, 120, .12), rgba(0, 0, 0, 0) 60%),
-                linear-gradient(180deg, rgba(140, 0, 0, .70), rgba(90, 0, 0, .78)),
-                url("https://vongquaymayman.co/wp-content/themes/twentytwentythree-child/assets/background/tet-1.jpg");
+                radial-gradient(900px 520px at 50% 42%,
+                    rgba(255, 170, 215, .46) 0%,
+                    rgba(255, 120, 190, .22) 35%,
+                    rgba(0, 0, 0, 0) 70%),
+
+                radial-gradient(980px 620px at 50% 88%,
+                    rgba(255, 206, 232, .40) 0%,
+                    rgba(255, 190, 225, .18) 40%,
+                    rgba(0, 0, 0, 0) 72%),
+
+                linear-gradient(180deg,
+                    rgba(188, 46, 106, .92) 0%,
+                    rgba(132, 18, 76, .92) 55%,
+                    rgba(92, 6, 50, .94) 100%),
+
+                url("/images/theme.png");
+
             background-size: cover;
-            background-position: center;
+            background-position: bottom;
             background-attachment: fixed;
             overflow-x: hidden;
         }
@@ -132,8 +147,8 @@
             justify-content: center;
             padding: 12px 0 10px;
             border-radius: 16px;
-            background-image: url("images/bg-wheel.png");
-            background-position: right;
+            background-image: url("images/bg-8.3.png");
+            background-position: top;
             background-size: cover;
             /* thêm glow đỏ/vàng cho khu vực vòng quay */
             /* background:
@@ -279,8 +294,8 @@
         }
 
         .btn.danger {
-            color: #fff5e8;
-            background: linear-gradient(135deg, var(--tet-red-2), var(--tet-red-1));
+            color: white;
+            background: linear-gradient(135deg, var(--magenta-2), var(--magenta-1));
             box-shadow: 0 12px 28px rgba(255, 31, 31, .18), 0 8px 20px rgba(0, 0, 0, .22);
         }
 
@@ -534,7 +549,7 @@
             font-size: 40px;
             font-weight: 950;
             letter-spacing: .5px;
-            color: #ff2a2a;
+            color: var(--pink-1);
             text-transform: uppercase;
         }
 

@@ -7,22 +7,20 @@
   <title>VÒNG QUAY MAY MẮN PHÒNG HÀNH CHÍNH ALPHA ECC</title>
 
   <style>
-   :root {
-            --text: #fff6fb;
-            --muted: rgba(255, 246, 251, .72);
+    :root {
+      --text: #fff4e6;
+      --muted: rgba(255, 244, 230, .75);
 
-            --pink-1: #ff77b7;
-            --pink-2: #ff4aa2;
-            --magenta-1: #b02764;
-            --magenta-2: #7a0f43;
+      /* Tet palette */
+      --tet-red-1: #b30000;
+      --tet-red-2: #ff1f1f;
+      --tet-gold-1: #ffd36a;
+      --tet-gold-2: #ffb300;
 
-            --tet-gold-1: #ffe1b5;
-            --tet-gold-2: #ffbf6a;
-
-            --glass: rgba(255, 255, 255, .10);
-            --glass2: rgba(255, 255, 255, .06);
-            --shadow: rgba(0, 0, 0, .35);
-        }
+      --glass: rgba(255, 255, 255, 0.10);
+      --glass2: rgba(255, 255, 255, 0.06);
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
 
     * {
       box-sizing: border-box;
@@ -39,27 +37,13 @@
       padding: 24px;
 
       /* nền ảnh Tết + màu phủ đỏ cho “tươi” */
-
       background:
-        radial-gradient(900px 520px at 50% 42%,
-          rgba(255, 170, 215, .46) 0%,
-          rgba(255, 120, 190, .22) 35%,
-          rgba(0, 0, 0, 0) 70%),
-
-        radial-gradient(980px 620px at 50% 88%,
-          rgba(255, 206, 232, .40) 0%,
-          rgba(255, 190, 225, .18) 40%,
-          rgba(0, 0, 0, 0) 72%),
-
-        linear-gradient(180deg,
-          rgba(188, 46, 106, .92) 0%,
-          rgba(132, 18, 76, .92) 55%,
-          rgba(92, 6, 50, .94) 100%),
-
-        url("/images/theme.png");
-
+        radial-gradient(900px 600px at 20% 10%, rgba(255, 225, 150, .16), rgba(0, 0, 0, 0) 55%),
+        radial-gradient(900px 650px at 85% 15%, rgba(255, 120, 120, .12), rgba(0, 0, 0, 0) 60%),
+        linear-gradient(180deg, rgba(140, 0, 0, .70), rgba(90, 0, 0, .78)),
+        url("https://vongquaymayman.co/wp-content/themes/twentytwentythree-child/assets/background/tet-1.jpg");
       background-size: cover;
-      background-position: bottom;
+      background-position: center;
       background-attachment: fixed;
       overflow-x: hidden;
     }
@@ -148,8 +132,8 @@
       justify-content: center;
       padding: 12px 0 10px;
       border-radius: 16px;
-      background-image: url("images/bg-8.3.png");
-      background-position: top;
+      background-image: url("images/bg-wheel.png");
+      background-position: right;
       background-size: cover;
       /* thêm glow đỏ/vàng cho khu vực vòng quay */
       /* background:
