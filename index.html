@@ -24,9 +24,7 @@
       --shadow: rgba(0, 0, 0, .35);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -37,34 +35,26 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
-
-      /* nền ảnh Tết + màu phủ đỏ cho “tươi” */
-
       background:
         radial-gradient(900px 520px at 50% 42%,
           rgba(255, 170, 215, .46) 0%,
           rgba(255, 120, 190, .22) 35%,
           rgba(0, 0, 0, 0) 70%),
-
         radial-gradient(980px 620px at 50% 88%,
           rgba(255, 206, 232, .40) 0%,
           rgba(255, 190, 225, .18) 40%,
           rgba(0, 0, 0, 0) 72%),
-
         linear-gradient(180deg,
           rgba(188, 46, 106, .92) 0%,
           rgba(132, 18, 76, .92) 55%,
           rgba(92, 6, 50, .94) 100%),
-
         url("images/theme1.png");
-
       background-size: cover;
       background-position: bottom;
       background-attachment: fixed;
       overflow-x: hidden;
     }
 
-    /* bokeh overlay + vignette để giống ảnh mẫu hơn */
     body::before {
       content: "";
       position: fixed;
@@ -82,7 +72,6 @@
       mix-blend-mode: screen;
     }
 
-    /* overlay pháo hoa */
     #fxCanvas {
       position: fixed;
       inset: 0;
@@ -102,11 +91,7 @@
       z-index: 2;
     }
 
-    @media (max-width: 900px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-    }
+    @media (max-width: 900px) { .app { grid-template-columns: 1fr; } }
 
     .card {
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
@@ -126,20 +111,9 @@
       gap: 12px;
     }
 
-    .title {
-      font-weight: 900;
-      letter-spacing: .2px;
-    }
-
-    .sub {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 4px;
-    }
-
-    .bd {
-      padding: 16px 18px;
-    }
+    .title { font-weight: 900; letter-spacing: .2px; }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .bd { padding: 16px 18px; }
 
     .wheelWrap {
       position: relative;
@@ -151,10 +125,6 @@
       background-image: url("images/bg-8.3-4.png");
       background-position: top;
       background-size: cover;
-      /* thêm glow đỏ/vàng cho khu vực vòng quay */
-      /* background:
-        radial-gradient(500px 320px at 50% 25%, rgba(255, 200, 120, .18), rgba(0, 0, 0, 0) 60%),
-        radial-gradient(560px 380px at 50% 70%, rgba(255, 70, 70, .16), rgba(0, 0, 0, 0) 62%); */
     }
 
     canvas#wheel {
@@ -197,54 +167,20 @@
       text-align: center;
       padding: 10px;
       z-index: 2;
-    }
 
-    .center {
       transition: transform .15s ease, box-shadow .2s ease;
     }
 
-    .center:hover {
-      transform: scale(1.06);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, .45);
-    }
+    .center:hover { transform: scale(1.06); box-shadow: 0 14px 30px rgba(0, 0, 0, .45); }
+    .center:active { transform: scale(0.96); }
+    .center.disabled { opacity: .6; cursor: not-allowed; transform: none !important; }
 
-    .center:active {
-      transform: scale(0.96);
-    }
+    .center .big { font-size: 26px; font-weight: 950; line-height: 1.1; }
+    .center .small { font-size: 12px; color: var(--muted); margin-top: 6px; }
 
-    .center.disabled {
-      opacity: .6;
-      cursor: not-allowed;
-      transform: none !important;
-    }
+    .controls { display: grid; gap: 10px; margin-top: 10px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
 
-    .center .big {
-      font-size: 26px;
-      font-weight: 950;
-      line-height: 1.1;
-    }
-
-    .center .small {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-
-    .controls {
-      display: grid;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    /* ===== NÚT “TẾT VUI VẺ” ===== */
     .btn {
       appearance: none;
       border: none;
@@ -277,28 +213,13 @@
     }
 
     @keyframes shine {
-      0% {
-        transform: translateX(-160%) rotate(25deg);
-        opacity: 0;
-      }
-
-      15% {
-        opacity: .6;
-      }
-
-      45% {
-        transform: translateX(340%) rotate(25deg);
-        opacity: .25;
-      }
-
-      100% {
-        opacity: 0;
-      }
+      0% { transform: translateX(-160%) rotate(25deg); opacity: 0; }
+      15% { opacity: .6; }
+      45% { transform: translateX(340%) rotate(25deg); opacity: .25; }
+      100% { opacity: 0; }
     }
 
-    .btn:active {
-      transform: translateY(1px) scale(.99);
-    }
+    .btn:active { transform: translateY(1px) scale(.99); }
 
     .btn.secondary {
       color: var(--text);
@@ -307,22 +228,15 @@
       box-shadow: none;
       font-weight: 850;
     }
-
-    .btn.secondary::after {
-      display: none;
-    }
+    .btn.secondary::after { display: none; }
 
     .btn.danger {
-      color: #fff5e8;
-      background: linear-gradient(135deg, var(--tet-red-2), var(--tet-red-1));
+      color: white;
+      background: linear-gradient(135deg, var(--magenta-2), var(--magenta-1));
       box-shadow: 0 12px 28px rgba(255, 31, 31, .18), 0 8px 20px rgba(0, 0, 0, .22);
     }
 
-    .btn:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-      filter: saturate(.7);
-    }
+    .btn:disabled { opacity: .55; cursor: not-allowed; filter: saturate(.7); }
 
     .pill {
       display: inline-flex;
@@ -337,10 +251,7 @@
       white-space: nowrap;
     }
 
-    label {
-      color: var(--muted);
-      font-size: 13px;
-    }
+    label { color: var(--muted); font-size: 13px; }
 
     input[type="number"] {
       width: 120px;
@@ -352,11 +263,7 @@
       outline: none;
     }
 
-    .resultBox {
-      display: grid;
-      gap: 10px;
-    }
-
+    .resultBox { display: grid; gap: 10px; }
     .result {
       padding: 14px 14px;
       border-radius: 14px;
@@ -364,22 +271,10 @@
       background: rgba(0, 0, 0, 0.18);
     }
 
-    .result .k {
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .result .k { color: var(--muted); font-size: 12px; }
+    .result .v { font-size: 34px; font-weight: 950; margin-top: 2px; }
 
-    .result .v {
-      font-size: 34px;
-      font-weight: 950;
-      margin-top: 2px;
-    }
-
-    .hint {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.45; }
 
     .history {
       max-height: 360px;
@@ -389,14 +284,8 @@
       background: rgba(0, 0, 0, 0.14);
     }
 
-    .history table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    .history th,
-    .history td {
+    .history table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .history th, .history td {
       padding: 10px 10px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       text-align: left;
@@ -412,9 +301,7 @@
       backdrop-filter: blur(8px);
     }
 
-    .history td.num {
-      font-weight: 950;
-    }
+    .history td.num { font-weight: 950; }
 
     .badge {
       display: inline-flex;
@@ -426,11 +313,8 @@
       font-size: 12px;
     }
 
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
-    /* ===== Number Strip (dải số chạy) ===== */
     .stripWrap {
       margin-top: 6px;
       padding: 12px 12px;
@@ -439,11 +323,7 @@
       background: rgba(0, 0, 0, 0.14);
     }
 
-    .stripTitle {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
+    .stripTitle { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
 
     .strip {
       display: flex;
@@ -476,24 +356,95 @@
       opacity: 1;
     }
 
-    .strip .cell.edge {
-      opacity: 0.55;
-      transform: scale(0.90);
+    .strip .cell.edge { opacity: 0.55; transform: scale(0.90); }
+
+    /* ===== MODAL (copy từ bản trên) ===== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 9000;
+    }
+    .modal.show { display: block; }
+
+    .modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal__panel {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(560px, 92vw);
+      transform: translate(-50%, -50%);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .45);
+      overflow: hidden;
+    }
+
+    .modal__x {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(0, 0, 0, .22);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .modal__head {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, .14);
+    }
+
+    .modal__hint {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .modal__body {
+      padding: 22px 18px 12px;
+      text-align: center;
+    }
+
+    .modal__icon { font-size: 30px; margin-bottom: 8px; }
+
+    .modal__title {
+      font-size: 40px;
+      font-weight: 950;
+      letter-spacing: .5px;
+      color: var(--pink-1);
+      text-transform: uppercase;
+    }
+
+    .modal__actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      padding: 14px 18px 18px;
+      border-top: 1px solid rgba(255, 255, 255, .14);
     }
   </style>
 </head>
 
 <body>
-  <!-- FX pháo hoa -->
   <canvas id="fxCanvas"></canvas>
 
   <div class="app">
-    <!-- LEFT: WHEEL -->
     <div class="card">
       <div class="hd">
         <div>
           <div class="title">Vòng xoay may mắn</div>
-          <div class="sub">Random số từ <span class="mono">1</span> đến <span class="mono">1600</span></div>
+          <div class="sub">Random số từ <span class="mono">1</span> đến <span class="mono">83</span></div>
         </div>
         <div class="pill" id="statusPill">Sẵn sàng</div>
       </div>
@@ -509,25 +460,25 @@
         </div>
 
         <div class="stripWrap" aria-live="polite">
-          <div class="stripTitle">Dải số đang chạy (1–1600)</div>
+          <div class="stripTitle">Dải số đang chạy (1–83)</div>
           <div class="strip" id="strip"></div>
         </div>
 
         <div class="controls">
           <div class="row">
-            <button class="btn" id="spinBtn">QUAY 🎇</button>
-            <button class="btn secondary" id="pickBtn">BỐC NGẪU NHIÊN 🎁</button>
+            <button class="btn" id="spinBtn">QUAY</button>
+            <button class="btn secondary" id="pickBtn">BỐC NGẪU NHIÊN</button>
           </div>
 
           <div class="row">
             <div class="pill">
               <label for="min">Min</label>
-              <input id="min" type="number" value="1" min="1" max="1600" step="1" />
+              <input id="min" type="number" value="1" min="1" max="83" step="1" />
               <span class="badge">↔</span>
               <label for="max">Max</label>
-              <input id="max" type="number" value="1600" min="1" max="1600" step="1" />
+              <input id="max" type="number" value="83" min="1" max="83" step="1" />
             </div>
-            <button class="btn danger" id="resetBtn">RESET 🧨</button>
+            <button class="btn danger" id="resetBtn">RESET</button>
           </div>
 
           <div class="hint">
@@ -539,7 +490,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: RESULT + HISTORY -->
     <div class="card">
       <div class="hd">
         <div>
@@ -572,6 +522,29 @@
     </div>
   </div>
 
+  <!-- ✅ RESULT MODAL (copy từ bản trên) -->
+  <div class="modal" id="resultModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="1"></div>
+
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal__x" type="button" data-close="1" aria-label="Đóng">✕</button>
+
+      <div class="modal__head">
+        <div class="modal__hint">Bạn đã quay vào số</div>
+      </div>
+
+      <div class="modal__body">
+        <div class="modal__icon"></div>
+        <div class="modal__title" id="modalTitle">—</div>
+      </div>
+
+      <div class="modal__actions">
+        <button class="btn danger" id="modalRemoveBtn">Xóa số này</button>
+        <button class="btn secondary" id="modalCloseBtn">Đóng lại</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (() => {
       const $ = (id) => document.getElementById(id);
@@ -598,7 +571,7 @@
         return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       }
 
-      // ===== State =====
+      // ===== DOM =====
       const canvas = $("wheel");
       const ctx = canvas.getContext("2d");
 
@@ -615,8 +588,32 @@
       const lastResult = $("lastResult");
       const historyBody = $("historyBody");
       const countEl = $("count");
-
       const stripEl = $("strip");
+
+      // ===== MODAL =====
+      const resultModal = $("resultModal");
+      const modalTitle = $("modalTitle");
+      const modalRemoveBtn = $("modalRemoveBtn");
+      const modalCloseBtn = $("modalCloseBtn");
+      let pendingPickedNum = null;
+
+      function openResultModal(num) {
+        pendingPickedNum = num;
+        if (modalTitle) modalTitle.textContent = String(num ?? "—");
+        if (resultModal) {
+          resultModal.classList.add("show");
+          resultModal.setAttribute("aria-hidden", "false");
+        }
+        celebrate();
+      }
+
+      function closeResultModal() {
+        pendingPickedNum = null;
+        if (resultModal) {
+          resultModal.classList.remove("show");
+          resultModal.setAttribute("aria-hidden", "true");
+        }
+      }
 
       // ===== AUDIO =====
       const spinSound = new Audio("sounds/spin.mp3");
@@ -626,19 +623,14 @@
       const winSound = new Audio("sounds/win.mp3");
       winSound.volume = 0.95;
 
-      const fireworkSound = new Audio("sounds/firework.mp3"); // optional
+      const fireworkSound = new Audio("sounds/firework.mp3");
       fireworkSound.volume = 0.85;
 
-      function startSpinSound() {
-        try { spinSound.currentTime = 0; spinSound.play().catch(() => { }); } catch { }
-      }
-      function stopSpinSound() {
-        try { spinSound.pause(); spinSound.currentTime = 0; } catch { }
-      }
-      function playWinSound() {
-        try { winSound.currentTime = 0; winSound.play().catch(() => { }); } catch { }
-      }
+      function startSpinSound() { try { spinSound.currentTime = 0; spinSound.play().catch(() => { }); } catch { } }
+      function stopSpinSound() { try { spinSound.pause(); spinSound.currentTime = 0; } catch { } }
+      function playWinSound() { try { winSound.currentTime = 0; winSound.play().catch(() => { }); } catch { } }
 
+      // ===== State =====
       let isSpinning = false;
       let angle = 0;
 
@@ -673,13 +665,10 @@
         if (raw) history = JSON.parse(raw) || [];
       } catch { history = []; }
 
-      function saveHistory() {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch { }
-      }
+      function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch { } }
 
       function pushHistory(num, type) {
-        const item = { num, type, t: Date.now() };
-        history.unshift(item);
+        history.unshift({ num, type, t: Date.now() });
         if (history.length > 200) history.length = 200;
         saveHistory();
         renderHistory();
@@ -724,14 +713,12 @@
       }
 
       function loadAvailable(min, max) {
-        // Nếu range giống lần trước thì load pool; không giống thì rebuild theo history
         try {
           const raw = localStorage.getItem(AVAILABLE_KEY);
           if (raw) {
             const obj = JSON.parse(raw);
             if (obj?.range === rangeKey(min, max) && Array.isArray(obj.nums)) {
               available = new Set(obj.nums.map(n => parseInt(n, 10)).filter(Number.isFinite));
-              // lọc lại theo range
               for (const n of Array.from(available)) {
                 if (n < min || n > max) available.delete(n);
               }
@@ -740,19 +727,14 @@
           }
         } catch { }
 
-        const used = history
-          .map(h => parseInt(h?.num, 10))
-          .filter(Number.isFinite);
-
+        const used = history.map(h => parseInt(h?.num, 10)).filter(Number.isFinite);
         available = buildAvailable(min, max, used);
         saveAvailable(min, max);
       }
 
-      function availableCount() {
-        return available.size;
-      }
+      function availableCount() { return available.size; }
 
-      function drawFromAvailable(min, max) {
+      function drawFromAvailable() {
         if (available.size <= 0) return null;
         const idx = secureRandomInt(0, available.size - 1);
         let i = 0;
@@ -766,9 +748,7 @@
       function commitPick(num, min, max) {
         available.delete(num);
         saveAvailable(min, max);
-        if (available.size === 0) {
-          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
-        }
+        if (available.size === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
       }
 
       // ===== Wheel drawing =====
@@ -827,26 +807,27 @@
         isSpinning = busy;
         spinBtn.disabled = busy;
         pickBtn.disabled = busy;
+        resetBtn.disabled = busy;
         minEl.disabled = busy;
         maxEl.disabled = busy;
 
-        if (centerSpinBtn) centerSpinBtn.classList.toggle("disabled", busy); 
-        if (centerSpinBtn) centerSpinBtn.style.pointerEvents = busy ? "none" : "auto"; 
+        if (centerSpinBtn) centerSpinBtn.classList.toggle("disabled", busy);
+        if (centerSpinBtn) centerSpinBtn.style.pointerEvents = busy ? "none" : "auto";
 
         statusPill.textContent = busy ? "Đang quay..." : "Sẵn sàng";
-        if (!busy && availableCount() === 0) {
-          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
-        }
+        if (!busy && availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
       }
 
       function clampRange() {
         let min = parseInt(minEl.value || "1", 10);
-        let max = parseInt(maxEl.value || "1600", 10);
+        let max = parseInt(maxEl.value || "83", 10);
         if (!Number.isFinite(min)) min = 1;
-        if (!Number.isFinite(max)) max = 1600;
+        if (!Number.isFinite(max)) max = 83;
 
-        min = Math.max(1, Math.min(1600, min));
-        max = Math.max(1, Math.min(1600, max));
+        min = Math.max(1, Math.min(83, min));
+        max = Math.max(1, Math.min(83, max));
+
+        if (max < min) [min, max] = [max, min];
 
         minEl.value = String(min);
         maxEl.value = String(max);
@@ -856,12 +837,10 @@
       function numberToStopAngle(num, min, max) {
         const span = (max - min + 1);
         const idx = (num - min);
-        const frac = span > 1 ? (idx / span) : 0;
-
         const slice = (Math.PI * 2) / Math.max(span, 1);
         const jitter = (Math.random() - 0.5) * slice * 0.35;
 
-        const marker = frac * Math.PI * 2;
+        const marker = idx * slice + slice / 2;
         const top = -Math.PI / 2;
 
         let target = top - marker + jitter;
@@ -869,7 +848,7 @@
         return target;
       }
 
-      // ===== FIREWORKS FX (canvas overlay) =====
+      // ===== FIREWORKS =====
       const fx = $("fxCanvas");
       const fctx = fx.getContext("2d");
       let fxW = 0, fxH = 0;
@@ -884,7 +863,6 @@
       const sparks = [];
       let fxRunning = false;
       let fxRAF = 0;
-
       let burstTimer = 0;
       let stopTimer = 0;
 
@@ -910,42 +888,11 @@
             vx: Math.cos(a) * sp * devicePixelRatio,
             vy: Math.sin(a) * sp * devicePixelRatio,
             g: 0.12 * devicePixelRatio,
-            life,
-            ttl: life,
+            life, ttl: life,
             r: 1.2 + Math.random() * 2.6,
             c
           });
         }
-      }
-
-      function startFireworksToMusic() {
-        try { fireworkSound.pause(); fireworkSound.currentTime = 0; } catch { }
-
-        if (burstTimer) clearInterval(burstTimer);
-        if (stopTimer) clearTimeout(stopTimer);
-        burstTimer = 0;
-        stopTimer = 0;
-
-        fxRunning = true;
-        shootBurstWave();
-
-        burstTimer = setInterval(() => {
-          if (fireworkSound.paused || fireworkSound.ended) return;
-          shootBurstWave();
-        }, 220);
-
-        fireworkSound.onended = () => stopFireworks();
-
-        try {
-          const d = fireworkSound.duration;
-          if (Number.isFinite(d) && d > 0) {
-            stopTimer = setTimeout(stopFireworks, Math.ceil(d * 1000) + 50);
-          }
-        } catch { }
-
-        try { fireworkSound.play().catch(() => { }); } catch { }
-
-        if (!fxRAF) fxRAF = requestAnimationFrame(fxFrame);
       }
 
       function shootBurstWave() {
@@ -959,11 +906,21 @@
 
       function stopFireworks() {
         fxRunning = false;
-
         if (burstTimer) clearInterval(burstTimer);
         if (stopTimer) clearTimeout(stopTimer);
         burstTimer = 0;
         stopTimer = 0;
+      }
+
+      function startFireworks(seconds = 3.2) {
+        stopFireworks();
+        fxRunning = true;
+        shootBurstWave();
+
+        burstTimer = setInterval(shootBurstWave, 220);
+        stopTimer = setTimeout(() => stopFireworks(), Math.floor(seconds * 1000));
+
+        if (!fxRAF) fxRAF = requestAnimationFrame(fxFrame);
       }
 
       function fxFrame() {
@@ -997,15 +954,14 @@
       }
 
       function celebrate() {
-        startFireworksToMusic();
+        try { fireworkSound.currentTime = 0; fireworkSound.play().catch(() => { }); } catch { }
+        startFireworks(3.2);
       }
 
+      // ===== Actions =====
       function spin() {
         if (isSpinning) return;
         const { min, max } = clampRange();
-        if (max < min) return;
-
-        // load pool theo range hiện tại
         loadAvailable(min, max);
 
         if (availableCount() <= 0) {
@@ -1013,7 +969,7 @@
           return;
         }
 
-        const picked = drawFromAvailable(min, max);
+        const picked = drawFromAvailable();
         if (picked == null) {
           statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
           return;
@@ -1075,10 +1031,9 @@
 
             stopSpinSound();
             playWinSound();
-            celebrate();
 
-            commitPick(picked, min, max);  
             pushHistory(picked, "quay");
+            openResultModal(picked);
 
             setBusy(false);
           }
@@ -1089,7 +1044,6 @@
       function pickInstant() {
         if (isSpinning) return;
         const { min, max } = clampRange();
-
         loadAvailable(min, max);
 
         if (availableCount() <= 0) {
@@ -1097,7 +1051,7 @@
           return;
         }
 
-        const picked = drawFromAvailable(min, max);
+        const picked = drawFromAvailable();
         if (picked == null) {
           statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
           return;
@@ -1114,14 +1068,9 @@
         renderStrip(picked, min, max, 11);
 
         playWinSound();
-        celebrate();
 
-        commitPick(picked, min, max);     // ✅ loại khỏi pool (không trúng lại)
         pushHistory(picked, "bốc");
-
-        if (availableCount() === 0) {
-          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
-        }
+        openResultModal(picked);
       }
 
       function resetHistory() {
@@ -1138,42 +1087,65 @@
 
         const { min, max } = clampRange();
 
-        // ✅ reset pool lại từ đầu theo range hiện tại
         available = buildAvailable(min, max, []);
         saveAvailable(min, max);
+
         statusPill.textContent = "Sẵn sàng";
 
-        const seed = drawFromAvailable(min, max) ?? min;
+        const seed = drawFromAvailable() ?? min;
         renderStrip(seed, min, max, 11);
       }
+
+      // ===== Modal events =====
+      if (resultModal) {
+        resultModal.addEventListener("click", (e) => {
+          const el = e.target;
+          if (el && el.getAttribute && el.getAttribute("data-close") === "1") closeResultModal();
+        });
+      }
+      if (modalCloseBtn) modalCloseBtn.addEventListener("click", closeResultModal);
+
+      if (modalRemoveBtn) {
+        modalRemoveBtn.addEventListener("click", () => {
+          if (pendingPickedNum == null) return;
+          const { min, max } = clampRange();
+          loadAvailable(min, max);
+
+          // ✅ loại số khỏi pool (không lặp)
+          commitPick(pendingPickedNum, min, max);
+
+          closeResultModal();
+        });
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && resultModal?.classList.contains("show")) closeResultModal();
+      });
 
       // ===== Events =====
       spinBtn.addEventListener("click", spin);
       pickBtn.addEventListener("click", pickInstant);
       resetBtn.addEventListener("click", resetHistory);
+
       if (centerSpinBtn) {
         centerSpinBtn.addEventListener("click", spin);
-
-        // Enter/Space cũng quay (như nút)
         centerSpinBtn.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            spin();
-          }
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); spin(); }
         });
       }
+
       [minEl, maxEl].forEach(el => {
         el.addEventListener("change", () => {
           const { min, max } = clampRange();
           loadAvailable(min, max);
-          const seed = drawFromAvailable(min, max) ?? min;
+          const seed = drawFromAvailable() ?? min;
           renderStrip(seed, min, max, 11);
           if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
         });
         el.addEventListener("blur", () => {
           const { min, max } = clampRange();
           loadAvailable(min, max);
-          const seed = drawFromAvailable(min, max) ?? min;
+          const seed = drawFromAvailable() ?? min;
           renderStrip(seed, min, max, 11);
           if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
         });
@@ -1185,7 +1157,7 @@
       loadAvailable(initRange.min, initRange.max);
       drawWheel();
 
-      const seed = drawFromAvailable(initRange.min, initRange.max) ?? initRange.min;
+      const seed = drawFromAvailable() ?? initRange.min;
       renderStrip(seed, initRange.min, initRange.max, 11);
 
       if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
@@ -1193,5 +1165,4 @@
   </script>
 
 </body>
-
 </html>
