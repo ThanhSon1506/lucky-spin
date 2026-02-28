@@ -444,7 +444,7 @@
       <div class="hd">
         <div>
           <div class="title">Vòng xoay may mắn</div>
-          <div class="sub">Random số từ <span class="mono">1</span> đến <span class="mono">83</span></div>
+          <div class="sub">Random số từ <span class="mono">1</span> đến <span class="mono">1585</span></div>
         </div>
         <div class="pill" id="statusPill">Sẵn sàng</div>
       </div>
@@ -460,7 +460,7 @@
         </div>
 
         <div class="stripWrap" aria-live="polite">
-          <div class="stripTitle">Dải số đang chạy (1–83)</div>
+          <div class="stripTitle">Dải số đang chạy (1–1585)</div>
           <div class="strip" id="strip"></div>
         </div>
 
@@ -473,10 +473,10 @@
           <div class="row">
             <div class="pill">
               <label for="min">Min</label>
-              <input id="min" type="number" value="1" min="1" max="83" step="1" />
+              <input id="min" type="number" value="1501" min="1" max="1585" step="1" />
               <span class="badge">↔</span>
               <label for="max">Max</label>
-              <input id="max" type="number" value="83" min="1" max="83" step="1" />
+              <input id="max" type="number" value="1585" min="1" max="1585" step="1" />
             </div>
             <button class="btn danger" id="resetBtn">RESET</button>
           </div>
@@ -820,12 +820,12 @@
 
       function clampRange() {
         let min = parseInt(minEl.value || "1", 10);
-        let max = parseInt(maxEl.value || "83", 10);
+        let max = parseInt(maxEl.value || "1585", 10);
         if (!Number.isFinite(min)) min = 1;
-        if (!Number.isFinite(max)) max = 83;
+        if (!Number.isFinite(max)) max = 1585;
 
-        min = Math.max(1, Math.min(83, min));
-        max = Math.max(1, Math.min(83, max));
+        min = Math.max(1, Math.min(1585, min));
+        max = Math.max(1, Math.min(1585, max));
 
         if (max < min) [min, max] = [max, min];
 
