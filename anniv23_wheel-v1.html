@@ -8,20 +8,20 @@
 
     <style>
         :root {
-            --text: #fff6fb;
-            --muted: rgba(255, 246, 251, .72);
+            --text: #ffffff;
+            --muted: rgba(230, 245, 255, .72);
 
-            --pink-1: #ff77b7;
-            --pink-2: #ff4aa2;
-            --magenta-1: #b02764;
-            --magenta-2: #7a0f43;
+            --accent-1: #00e5ff;
+            --accent-2: #00bfff;
+            --primary-1: #0056b3;
+            --primary-2: #003d80;
 
             --tet-gold-1: #ffe1b5;
             --tet-gold-2: #ffbf6a;
 
             --glass: rgba(255, 255, 255, .10);
             --glass2: rgba(255, 255, 255, .06);
-            --shadow: rgba(0, 0, 0, .35);
+            --shadow: rgba(0, 0, 0, .45);
         }
 
         * {
@@ -41,24 +41,23 @@
 
             background:
                 radial-gradient(900px 520px at 50% 42%,
-                    rgba(255, 170, 215, .46) 0%,
-                    rgba(255, 120, 190, .22) 15%,
+                    rgba(0, 229, 255, .3) 0%,
+                    rgba(0, 123, 255, .15) 35%,
                     rgba(0, 0, 0, 0) 70%),
 
                 radial-gradient(980px 620px at 50% 88%,
-                    rgba(255, 206, 232, .40) 0%,
-                    rgba(255, 190, 225, .18) 40%,
+                    rgba(0, 229, 255, .25) 0%,
+                    rgba(0, 191, 255, .12) 40%,
                     rgba(0, 0, 0, 0) 72%),
 
                 linear-gradient(180deg,
-                    rgba(188, 46, 106, .92) 0%,
-                    rgba(132, 18, 76, .92) 30%,
-                    rgba(92, 6, 50, .94) 100%),
+                    rgba(0, 45, 91, .35) 0%,
+                    rgba(0, 15, 40, .5) 100%),
 
-                url("images/theme1.png");
+                url("images/anniv23_wheel/theme.jpg");
 
             background-size: cover;
-            background-position: bottom;
+            background-position: center;
             background-attachment: fixed;
             overflow-x: hidden;
         }
@@ -147,9 +146,11 @@
             justify-content: center;
             padding: 12px 0 10px;
             border-radius: 16px;
-            background: url("images/bg-8.3-4.png");
-            background-position: top;
+            background: rgba(0, 0, 0, 0.25);
+            background-position: center;
             background-size: cover;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(0, 229, 255, 0.1);
             /* thêm glow đỏ/vàng cho khu vực vòng quay */
             /* background:
         radial-gradient(500px 320px at 50% 25%, rgba(255, 200, 120, .18), rgba(0, 0, 0, 0) 60%),
@@ -294,8 +295,8 @@
 
         .btn.danger {
             color: white;
-            background: linear-gradient(135deg, var(--magenta-2), var(--magenta-1));
-            box-shadow: 0 12px 28px rgba(255, 31, 31, .18), 0 8px 20px rgba(0, 0, 0, .22);
+            background: linear-gradient(135deg, var(--primary-2), var(--primary-1));
+            box-shadow: 0 12px 28px rgba(0, 86, 179, .18), 0 8px 20px rgba(0, 0, 0, .22);
         }
 
         .btn:disabled {
@@ -548,7 +549,7 @@
             font-size: 40px;
             font-weight: 950;
             letter-spacing: .5px;
-            color: var(--pink-1);
+            color: var(--accent-1);
             text-transform: uppercase;
         }
 
@@ -970,8 +971,7 @@
             const stripWrap = document.querySelector(".stripWrap");
             const itemsPanel = $("itemsPanel");
 
-            const STORAGE_NAMESPACE = "wheel_83_womens_day_v1";
-            const UI_PREF_KEY = `${STORAGE_NAMESPACE}:ui_prefs`;
+            const UI_PREF_KEY = "wheel_83_ui_prefs_v1";
 
             function openSettings() {
                 if (!settingsModal) return;
@@ -1028,8 +1028,8 @@
                 "Được bỏ qua thử thách"
             ];
 
-            const ITEMS_KEY = `${STORAGE_NAMESPACE}:available_items`;
-            const HISTORY_KEY = `${STORAGE_NAMESPACE}:history`;
+            const ITEMS_KEY = "wheel_83_available_items_v1";
+            const HISTORY_KEY = "wheel_83_history_v1";
 
             let availableItems = [];
             let history = [];
@@ -1138,7 +1138,7 @@
                     ctx.closePath();
 
                     const alt = i % 2;
-                    ctx.fillStyle = alt ? "rgba(255, 211, 106, 0.32)" : "rgba(255, 60, 60, 0.24)";
+                    ctx.fillStyle = alt ? "rgba(255, 211, 106, 0.32)" : "rgba(0, 229, 255, 0.24)";
                     ctx.fill();
 
                     ctx.strokeStyle = "rgba(255,255,255,0.14)";

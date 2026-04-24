@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VÒNG QUAY MAY MẮN PHÒNG HÀNH CHÍNH ALPHA ECC</title>
+
+  <style>
+    :root {
+      --text: #ffffff;
+      --muted: rgba(230, 245, 255, .72);
+
+      --accent-1: #00e5ff;
+      --accent-2: #00bfff;
+      --primary-1: #0056b3;
+      --primary-2: #003d80;
+
+      --tet-gold-1: #ffe1b5;
+      --tet-gold-2: #ffbf6a;
+
+      --glass: rgba(255, 255, 255, .10);
+      --glass2: rgba(255, 255, 255, .06);
+      --shadow: rgba(0, 0, 0, .45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(900px 520px at 50% 42%,
+          rgba(0, 229, 255, .3) 0%,
+          rgba(0, 123, 255, .15) 35%,
+          rgba(0, 0, 0, 0) 70%),
+        radial-gradient(980px 620px at 50% 88%,
+          rgba(0, 229, 255, .25) 0%,
+          rgba(0, 191, 255, .12) 40%,
+          rgba(0, 0, 0, 0) 72%),
+        linear-gradient(180deg,
+          rgba(0, 45, 91, .35) 0%,
+          rgba(0, 15, 40, .5) 100%),
+        url("images/anniv23_wheel/theme.jpg");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, .16) 0 60px, rgba(0, 0, 0, 0) 62px),
+        radial-gradient(circle at 55% 20%, rgba(255, 255, 255, .12) 0 80px, rgba(0, 0, 0, 0) 82px),
+        radial-gradient(circle at 80% 35%, rgba(255, 255, 255, .10) 0 65px, rgba(0, 0, 0, 0) 67px),
+        radial-gradient(circle at 30% 75%, rgba(255, 255, 255, .10) 0 95px, rgba(0, 0, 0, 0) 97px),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, .10) 0 120px, rgba(0, 0, 0, 0) 122px),
+        radial-gradient(1200px 800px at 50% 50%, rgba(0, 0, 0, .10), rgba(0, 0, 0, .35));
+      filter: blur(1px);
+      opacity: .65;
+      mix-blend-mode: screen;
+    }
+
+    #fxCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .app {
+      width: min(1250px, 100%);
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      position: relative;
+      z-index: 2;
+    }
+
+    @media (max-width: 900px) { .app { grid-template-columns: 1fr; } }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      box-shadow: 0 12px 40px var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+
+    .hd {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .title { font-weight: 900; letter-spacing: .2px; }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .bd { padding: 16px 18px; }
+
+    .wheelWrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 0 10px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.25);
+      background-position: center;
+      background-size: cover;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(0, 229, 255, 0.1);
+    }
+
+    canvas#wheel {
+      width: min(560px, 92vw);
+      height: auto;
+      aspect-ratio: 1/1;
+      border-radius: 999px;
+      box-shadow:
+        inset 0 0 0 10px rgba(0, 0, 0, 0.22),
+        0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .pointer {
+      position: absolute;
+      top: 6px;
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 34px solid var(--tet-gold-2);
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
+      z-index: 3;
+    }
+
+    .center {
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 220, 160, 0.24), rgba(255, 255, 255, 0.06));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      pointer-events: auto;
+      cursor: pointer;
+      text-align: center;
+      padding: 10px;
+      z-index: 2;
+
+      transition: transform .15s ease, box-shadow .2s ease;
+    }
+
+    .center:hover { transform: scale(1.06); box-shadow: 0 14px 30px rgba(0, 0, 0, .45); }
+    .center:active { transform: scale(0.96); }
+    .center.disabled { opacity: .6; cursor: not-allowed; transform: none !important; }
+
+    .center .big { font-size: 26px; font-weight: 950; line-height: 1.1; }
+    .center .small { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    .controls { display: grid; gap: 10px; margin-top: 10px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+
+    .btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-weight: 950;
+      letter-spacing: .3px;
+      color: #2a0909;
+      background: linear-gradient(135deg, var(--tet-gold-1), var(--tet-gold-2));
+      box-shadow: 0 12px 28px rgba(255, 179, 0, .20), 0 8px 20px rgba(0, 0, 0, .22);
+      transition: transform .08s ease, filter .15s ease, opacity .15s ease;
+      user-select: none;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: "";
+      position: absolute;
+      top: -60%;
+      left: -40%;
+      width: 40%;
+      height: 220%;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .55), rgba(255, 255, 255, 0));
+      transform: rotate(25deg);
+      opacity: .55;
+      animation: shine 2.8s ease-in-out infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-160%) rotate(25deg); opacity: 0; }
+      15% { opacity: .6; }
+      45% { transform: translateX(340%) rotate(25deg); opacity: .25; }
+      100% { opacity: 0; }
+    }
+
+    .btn:active { transform: translateY(1px) scale(.99); }
+
+    .btn.secondary {
+      color: var(--text);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: none;
+      font-weight: 850;
+    }
+    .btn.secondary::after { display: none; }
+
+    .btn.danger {
+      color: white;
+      background: linear-gradient(135deg, var(--primary-2), var(--primary-1));
+      box-shadow: 0 12px 28px rgba(0, 86, 179, .18), 0 8px 20px rgba(0, 0, 0, .22);
+    }
+
+    .btn:disabled { opacity: .55; cursor: not-allowed; filter: saturate(.7); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    label { color: var(--muted); font-size: 13px; }
+
+    input[type="number"] {
+      width: 120px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text);
+      outline: none;
+    }
+
+    .resultBox { display: grid; gap: 10px; }
+    .result {
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .result .k { color: var(--muted); font-size: 12px; }
+    .result .v { font-size: 34px; font-weight: 950; margin-top: 2px; }
+
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .history {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.14);
+    }
+
+    .history table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .history th, .history td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: left;
+      color: var(--text);
+    }
+
+    .history th {
+      color: var(--muted);
+      font-weight: 750;
+      position: sticky;
+      top: 0;
+      background: rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(8px);
+    }
+
+    .history td.num { font-weight: 950; }
+
+    .badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .stripWrap {
+      margin-top: 6px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.14);
+    }
+
+    .stripTitle { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+
+    .strip {
+      display: flex;
+      gap: 8px;
+      overflow: hidden;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 2px;
+    }
+
+    .strip .cell {
+      min-width: 62px;
+      text-align: center;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      font-weight: 950;
+      font-size: 16px;
+      color: rgba(255, 244, 230, 0.92);
+      transform: scale(0.95);
+      opacity: 0.85;
+    }
+
+    .strip .cell.active {
+      background: linear-gradient(135deg, rgba(255, 211, 106, 0.28), rgba(255, 31, 31, 0.20));
+      border-color: rgba(255, 255, 255, 0.22);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+      transform: scale(1.08);
+      opacity: 1;
+    }
+
+    .strip .cell.edge { opacity: 0.55; transform: scale(0.90); }
+
+    /* ===== MODAL (copy từ bản trên) ===== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 9000;
+    }
+    .modal.show { display: block; }
+
+    .modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal__panel {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(560px, 92vw);
+      transform: translate(-50%, -50%);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .45);
+      overflow: hidden;
+    }
+
+    .modal__x {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(0, 0, 0, .22);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .modal__head {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, .14);
+    }
+
+    .modal__hint {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .modal__body {
+      padding: 22px 18px 12px;
+      text-align: center;
+    }
+
+    .modal__icon { font-size: 30px; margin-bottom: 8px; }
+
+    .modal__title {
+      font-size: 40px;
+      font-weight: 950;
+      letter-spacing: .5px;
+      color: var(--accent-1);
+      text-transform: uppercase;
+    }
+
+    .modal__actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      padding: 14px 18px 18px;
+      border-top: 1px solid rgba(255, 255, 255, .14);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="fxCanvas"></canvas>
+
+  <div class="app">
+    <div class="card">
+      <div class="hd">
+        <div>
+          <div class="title">Vòng xoay may mắn</div>
+          <div class="sub">Random số từ <span class="mono">1</span> đến <span class="mono">1585</span></div>
+        </div>
+        <div class="pill" id="statusPill">Sẵn sàng</div>
+      </div>
+
+      <div class="bd">
+        <div class="wheelWrap">
+          <div class="pointer" aria-hidden="true"></div>
+          <canvas id="wheel" width="900" height="900"></canvas>
+          <div class="center" id="centerSpinBtn" role="button" tabindex="0" aria-label="Quay">
+            <div class="big" id="centerNumber">QUAY</div>
+            <div class="small" id="centerText">Nhấn để bắt đầu</div>
+          </div>
+        </div>
+
+        <div class="stripWrap" aria-live="polite">
+          <div class="stripTitle">Dải số đang chạy (1–1585)</div>
+          <div class="strip" id="strip"></div>
+        </div>
+
+        <div class="controls">
+          <div class="row">
+            <button class="btn" id="spinBtn">QUAY</button>
+            <button class="btn secondary" id="pickBtn">BỐC NGẪU NHIÊN</button>
+          </div>
+
+          <div class="row">
+            <div class="pill">
+              <label for="min">Min</label>
+              <input id="min" type="number" value="1501" min="1" max="1585" step="1" />
+              <span class="badge">↔</span>
+              <label for="max">Max</label>
+              <input id="max" type="number" value="1585" min="1" max="1585" step="1" />
+            </div>
+            <button class="btn danger" id="resetBtn">RESET</button>
+          </div>
+
+          <div class="hint">
+            - <b>QUAY</b>: animation giảm tốc + dừng đúng số.<br />
+            - <b>BỐC</b>: ra số ngay (không animation).<br />
+            - Lưu lịch sử bên phải.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd">
+        <div>
+          <div class="title">Kết quả & Lịch sử</div>
+          <div class="sub">Mỗi lần quay/bốc sẽ lưu lại</div>
+        </div>
+        <div class="pill"><span class="badge">Tổng</span> <span id="count">0</span></div>
+      </div>
+
+      <div class="bd resultBox">
+        <div class="result">
+          <div class="k">Kết quả gần nhất</div>
+          <div class="v" id="lastResult">—</div>
+        </div>
+
+        <div class="history" id="historyBox">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Số</th>
+                <th>Kiểu</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ RESULT MODAL (copy từ bản trên) -->
+  <div class="modal" id="resultModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="1"></div>
+
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal__x" type="button" data-close="1" aria-label="Đóng">✕</button>
+
+      <div class="modal__head">
+        <div class="modal__hint">Bạn đã quay vào số</div>
+      </div>
+
+      <div class="modal__body">
+        <div class="modal__icon"></div>
+        <div class="modal__title" id="modalTitle">—</div>
+      </div>
+
+      <div class="modal__actions">
+        <button class="btn danger" id="modalRemoveBtn">Xóa số này</button>
+        <button class="btn secondary" id="modalCloseBtn">Đóng lại</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+
+      function secureRandomInt(min, max) {
+        min = Math.ceil(min); max = Math.floor(max);
+        if (max < min) [min, max] = [max, min];
+        const range = max - min + 1;
+        if (range <= 0) return min;
+
+        if (window.crypto && crypto.getRandomValues) {
+          const maxUint = 0xFFFFFFFF;
+          const limit = Math.floor(maxUint / range) * range;
+          const buf = new Uint32Array(1);
+          let x;
+          do { crypto.getRandomValues(buf); x = buf[0]; } while (x >= limit);
+          return min + (x % range);
+        }
+        return min + Math.floor(Math.random() * range);
+      }
+
+      function fmtTime(d) {
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      }
+
+      // ===== DOM =====
+      const canvas = $("wheel");
+      const ctx = canvas.getContext("2d");
+
+      const spinBtn = $("spinBtn");
+      const pickBtn = $("pickBtn");
+      const resetBtn = $("resetBtn");
+      const centerSpinBtn = $("centerSpinBtn");
+      const minEl = $("min");
+      const maxEl = $("max");
+
+      const statusPill = $("statusPill");
+      const centerNumber = $("centerNumber");
+      const centerText = $("centerText");
+      const lastResult = $("lastResult");
+      const historyBody = $("historyBody");
+      const countEl = $("count");
+      const stripEl = $("strip");
+
+      // ===== MODAL =====
+      const resultModal = $("resultModal");
+      const modalTitle = $("modalTitle");
+      const modalRemoveBtn = $("modalRemoveBtn");
+      const modalCloseBtn = $("modalCloseBtn");
+      let pendingPickedNum = null;
+
+      function openResultModal(num) {
+        pendingPickedNum = num;
+        if (modalTitle) modalTitle.textContent = String(num ?? "—");
+        if (resultModal) {
+          resultModal.classList.add("show");
+          resultModal.setAttribute("aria-hidden", "false");
+        }
+        celebrate();
+      }
+
+      function closeResultModal() {
+        pendingPickedNum = null;
+        if (resultModal) {
+          resultModal.classList.remove("show");
+          resultModal.setAttribute("aria-hidden", "true");
+        }
+      }
+
+      // ===== AUDIO =====
+      const spinSound = new Audio("sounds/spin.mp3");
+      spinSound.loop = true;
+      spinSound.volume = 0.65;
+
+      const winSound = new Audio("sounds/win.mp3");
+      winSound.volume = 0.95;
+
+      const fireworkSound = new Audio("sounds/firework.mp3");
+      fireworkSound.volume = 0.85;
+
+      function startSpinSound() { try { spinSound.currentTime = 0; spinSound.play().catch(() => { }); } catch { } }
+      function stopSpinSound() { try { spinSound.pause(); spinSound.currentTime = 0; } catch { } }
+      function playWinSound() { try { winSound.currentTime = 0; winSound.play().catch(() => { }); } catch { } }
+
+      // ===== State =====
+      let isSpinning = false;
+      let angle = 0;
+
+      const DECOR_SLICES = 24;
+      const W = canvas.width, H = canvas.height;
+      const cx = W / 2, cy = H / 2;
+      const radius = Math.min(W, H) * 0.46;
+
+      // ===== Strip =====
+      function renderStrip(center, min, max, size = 11) {
+        const half = Math.floor(size / 2);
+        const span = (max - min + 1) || 1;
+
+        const cells = [];
+        for (let i = -half; i <= half; i++) {
+          let v = center + i;
+          v = ((v - min) % span + span) % span + min;
+          cells.push(v);
+        }
+
+        stripEl.innerHTML = cells.map((v, idx) => {
+          const cls = idx === half ? "cell active" : (idx === 0 || idx === size - 1 ? "cell edge" : "cell");
+          return `<div class="${cls}">${v}</div>`;
+        }).join("");
+      }
+
+      // ===== Storage (History) =====
+      const STORAGE_NAMESPACE = "lucky_wheel_anniv23_v2";
+      const STORAGE_KEY = `${STORAGE_NAMESPACE}:history`;
+      let history = [];
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) history = JSON.parse(raw) || [];
+      } catch { history = []; }
+
+      function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch { } }
+
+      function pushHistory(num, type) {
+        history.unshift({ num, type, t: Date.now() });
+        if (history.length > 200) history.length = 200;
+        saveHistory();
+        renderHistory();
+      }
+
+      function renderHistory() {
+        historyBody.innerHTML = history.map((h, idx) => {
+          const d = new Date(h.t);
+          return `
+          <tr>
+            <td>${history.length - idx}</td>
+            <td class="num">${h.num}</td>
+            <td><span class="badge">${h.type}</span></td>
+            <td class="mono">${fmtTime(d)}</td>
+          </tr>
+        `;
+        }).join("");
+        countEl.textContent = String(history.length);
+        lastResult.textContent = history[0]?.num ?? "—";
+      }
+
+      // ===== Unique numbers (NO REPEAT until RESET) =====
+      const AVAILABLE_KEY = `${STORAGE_NAMESPACE}:available`;
+      let available = new Set();
+
+      function rangeKey(min, max) { return `${min}-${max}`; }
+
+      function buildAvailable(min, max, excludeNums = []) {
+        const s = new Set();
+        for (let v = min; v <= max; v++) s.add(v);
+        for (const n of excludeNums) s.delete(n);
+        return s;
+      }
+
+      function saveAvailable(min, max) {
+        try {
+          localStorage.setItem(AVAILABLE_KEY, JSON.stringify({
+            range: rangeKey(min, max),
+            nums: Array.from(available)
+          }));
+        } catch { }
+      }
+
+      function loadAvailable(min, max) {
+        try {
+          const raw = localStorage.getItem(AVAILABLE_KEY);
+          if (raw) {
+            const obj = JSON.parse(raw);
+            if (obj?.range === rangeKey(min, max) && Array.isArray(obj.nums)) {
+              available = new Set(obj.nums.map(n => parseInt(n, 10)).filter(Number.isFinite));
+              for (const n of Array.from(available)) {
+                if (n < min || n > max) available.delete(n);
+              }
+              return;
+            }
+          }
+        } catch { }
+
+        const used = history.map(h => parseInt(h?.num, 10)).filter(Number.isFinite);
+        available = buildAvailable(min, max, used);
+        saveAvailable(min, max);
+      }
+
+      function availableCount() { return available.size; }
+
+      function drawFromAvailable() {
+        if (available.size <= 0) return null;
+        const idx = secureRandomInt(0, available.size - 1);
+        let i = 0;
+        for (const n of available) {
+          if (i === idx) return n;
+          i++;
+        }
+        return null;
+      }
+
+      function commitPick(num, min, max) {
+        available.delete(num);
+        saveAvailable(min, max);
+        if (available.size === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+      }
+
+      // ===== Wheel drawing =====
+      function drawWheel() {
+        ctx.clearRect(0, 0, W, H);
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+
+        for (let i = 0; i < DECOR_SLICES; i++) {
+          const a0 = (i / DECOR_SLICES) * Math.PI * 2;
+          const a1 = ((i + 1) / DECOR_SLICES) * Math.PI * 2;
+
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.arc(0, 0, radius, a0, a1);
+          ctx.closePath();
+
+          const alt = i % 2;
+          ctx.fillStyle = alt ? "rgba(255, 211, 106, 0.32)" : "rgba(0, 229, 255, 0.24)";
+          ctx.fill();
+
+          ctx.strokeStyle = "rgba(255,255,255,0.14)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.62, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,0,0,0.22)";
+        ctx.fill();
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.stroke();
+
+        const grd = ctx.createRadialGradient(-radius * 0.25, -radius * 0.25, radius * 0.05, 0, 0, radius);
+        grd.addColorStop(0, "rgba(255,255,255,0.22)");
+        grd.addColorStop(0.45, "rgba(255,255,255,0.06)");
+        grd.addColorStop(1, "rgba(255,255,255,0.00)");
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
+
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * 0.06, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.12)";
+        ctx.fill();
+      }
+
+      // ===== Spin logic =====
+      function setBusy(busy) {
+        isSpinning = busy;
+        spinBtn.disabled = busy;
+        pickBtn.disabled = busy;
+        resetBtn.disabled = busy;
+        minEl.disabled = busy;
+        maxEl.disabled = busy;
+
+        if (centerSpinBtn) centerSpinBtn.classList.toggle("disabled", busy);
+        if (centerSpinBtn) centerSpinBtn.style.pointerEvents = busy ? "none" : "auto";
+
+        statusPill.textContent = busy ? "Đang quay..." : "Sẵn sàng";
+        if (!busy && availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+      }
+
+      function clampRange() {
+        let min = parseInt(minEl.value || "1", 10);
+        let max = parseInt(maxEl.value || "1585", 10);
+        if (!Number.isFinite(min)) min = 1;
+        if (!Number.isFinite(max)) max = 1585;
+
+        min = Math.max(1, Math.min(1585, min));
+        max = Math.max(1, Math.min(1585, max));
+
+        if (max < min) [min, max] = [max, min];
+
+        minEl.value = String(min);
+        maxEl.value = String(max);
+        return { min, max };
+      }
+
+      function numberToStopAngle(num, min, max) {
+        const span = (max - min + 1);
+        const idx = (num - min);
+        const slice = (Math.PI * 2) / Math.max(span, 1);
+        const jitter = (Math.random() - 0.5) * slice * 0.35;
+
+        const marker = idx * slice + slice / 2;
+        const top = -Math.PI / 2;
+
+        let target = top - marker + jitter;
+        target = ((target % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+        return target;
+      }
+
+      // ===== FIREWORKS =====
+      const fx = $("fxCanvas");
+      const fctx = fx.getContext("2d");
+      let fxW = 0, fxH = 0;
+
+      function resizeFx() {
+        fxW = fx.width = Math.floor(window.innerWidth * devicePixelRatio);
+        fxH = fx.height = Math.floor(window.innerHeight * devicePixelRatio);
+      }
+      window.addEventListener("resize", resizeFx);
+      resizeFx();
+
+      const sparks = [];
+      let fxRunning = false;
+      let fxRAF = 0;
+      let burstTimer = 0;
+      let stopTimer = 0;
+
+      function addBurst(x, y, count = 120) {
+        const px = x * devicePixelRatio;
+        const py = y * devicePixelRatio;
+
+        for (let i = 0; i < count; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const sp = 2 + Math.random() * 6;
+          const life = 45 + Math.random() * 45;
+
+          const palette = [
+            [255, 211, 106],
+            [255, 60, 60],
+            [255, 245, 230],
+            [255, 179, 0]
+          ];
+          const c = palette[(Math.random() * palette.length) | 0];
+
+          sparks.push({
+            x: px, y: py,
+            vx: Math.cos(a) * sp * devicePixelRatio,
+            vy: Math.sin(a) * sp * devicePixelRatio,
+            g: 0.12 * devicePixelRatio,
+            life, ttl: life,
+            r: 1.2 + Math.random() * 2.6,
+            c
+          });
+        }
+      }
+
+      function shootBurstWave() {
+        const bursts = 2 + ((Math.random() * 3) | 0);
+        for (let i = 0; i < bursts; i++) {
+          const x = window.innerWidth * (0.18 + Math.random() * 0.64);
+          const y = window.innerHeight * (0.16 + Math.random() * 0.40);
+          addBurst(x, y, 90 + ((Math.random() * 90) | 0));
+        }
+      }
+
+      function stopFireworks() {
+        fxRunning = false;
+        if (burstTimer) clearInterval(burstTimer);
+        if (stopTimer) clearTimeout(stopTimer);
+        burstTimer = 0;
+        stopTimer = 0;
+      }
+
+      function startFireworks(seconds = 3.2) {
+        stopFireworks();
+        fxRunning = true;
+        shootBurstWave();
+
+        burstTimer = setInterval(shootBurstWave, 220);
+        stopTimer = setTimeout(() => stopFireworks(), Math.floor(seconds * 1000));
+
+        if (!fxRAF) fxRAF = requestAnimationFrame(fxFrame);
+      }
+
+      function fxFrame() {
+        fctx.clearRect(0, 0, fxW, fxH);
+        fctx.globalCompositeOperation = "lighter";
+
+        for (let i = sparks.length - 1; i >= 0; i--) {
+          const s = sparks[i];
+          s.vy += s.g;
+          s.x += s.vx;
+          s.y += s.vy;
+          s.life -= 1;
+
+          const k = Math.max(0, s.life / s.ttl);
+          const alpha = 0.95 * k;
+
+          fctx.beginPath();
+          fctx.fillStyle = `rgba(${s.c[0]},${s.c[1]},${s.c[2]},${alpha})`;
+          fctx.arc(s.x, s.y, s.r * devicePixelRatio, 0, Math.PI * 2);
+          fctx.fill();
+
+          if (s.life <= 0) sparks.splice(i, 1);
+        }
+
+        if (sparks.length > 0 || fxRunning) {
+          fxRAF = requestAnimationFrame(fxFrame);
+        } else {
+          fxRAF = 0;
+          fctx.clearRect(0, 0, fxW, fxH);
+        }
+      }
+
+      function celebrate() {
+        try { fireworkSound.currentTime = 0; fireworkSound.play().catch(() => { }); } catch { }
+        startFireworks(3.2);
+      }
+
+      // ===== Actions =====
+      function spin() {
+        if (isSpinning) return;
+        const { min, max } = clampRange();
+        loadAvailable(min, max);
+
+        if (availableCount() <= 0) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+          return;
+        }
+
+        const picked = drawFromAvailable();
+        if (picked == null) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+          return;
+        }
+
+        const targetBase = numberToStopAngle(picked, min, max);
+        const extraTurns = secureRandomInt(5, 9);
+        const target = targetBase + extraTurns * Math.PI * 2;
+
+        setBusy(true);
+        startSpinSound();
+        centerNumber.textContent = "…";
+        centerText.textContent = "Đang quay";
+
+        const start = angle;
+        const delta = target - start;
+
+        const duration = 3800 + secureRandomInt(0, 900);
+        const t0 = performance.now();
+
+        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+        let rollValue = secureRandomInt(min, max);
+        function stripFrame(now) {
+          const t = (now - t0) / duration;
+          const clamped = Math.min(1, Math.max(0, t));
+          const e = easeOutCubic(clamped);
+
+          const step = Math.max(1, Math.floor(7 - 6 * e));
+          rollValue += step;
+
+          const span = (max - min + 1);
+          rollValue = ((rollValue - min) % span + span) % span + min;
+
+          const show = (clamped < 0.98) ? rollValue : picked;
+          renderStrip(show, min, max, 11);
+
+          if (clamped < 1) requestAnimationFrame(stripFrame);
+        }
+        requestAnimationFrame(stripFrame);
+
+        function frame(now) {
+          const t = (now - t0) / duration;
+          const clamped = Math.min(1, Math.max(0, t));
+          const e = easeOutCubic(clamped);
+
+          angle = start + delta * e;
+          drawWheel();
+
+          if (clamped < 1) {
+            requestAnimationFrame(frame);
+          } else {
+            angle = targetBase;
+            drawWheel();
+
+            centerNumber.textContent = String(picked);
+            centerText.textContent = "";
+            lastResult.textContent = String(picked);
+
+            stopSpinSound();
+            playWinSound();
+
+            pushHistory(picked, "quay");
+            openResultModal(picked);
+
+            setBusy(false);
+          }
+        }
+        requestAnimationFrame(frame);
+      }
+
+      function pickInstant() {
+        if (isSpinning) return;
+        const { min, max } = clampRange();
+        loadAvailable(min, max);
+
+        if (availableCount() <= 0) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+          return;
+        }
+
+        const picked = drawFromAvailable();
+        if (picked == null) {
+          statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+          return;
+        }
+
+        const targetBase = numberToStopAngle(picked, min, max);
+        angle = targetBase;
+        drawWheel();
+
+        centerNumber.textContent = String(picked);
+        centerText.textContent = "Lì xì may mắn 🎁";
+        lastResult.textContent = String(picked);
+
+        renderStrip(picked, min, max, 11);
+
+        playWinSound();
+
+        pushHistory(picked, "bốc");
+        openResultModal(picked);
+      }
+
+      function resetHistory() {
+        if (isSpinning) return;
+        stopSpinSound();
+
+        history = [];
+        saveHistory();
+        renderHistory();
+
+        centerNumber.textContent = "—";
+        centerText.textContent = "Kết quả";
+        lastResult.textContent = "—";
+
+        const { min, max } = clampRange();
+
+        available = buildAvailable(min, max, []);
+        saveAvailable(min, max);
+
+        statusPill.textContent = "Sẵn sàng";
+
+        const seed = drawFromAvailable() ?? min;
+        renderStrip(seed, min, max, 11);
+      }
+
+      // ===== Modal events =====
+      if (resultModal) {
+        resultModal.addEventListener("click", (e) => {
+          const el = e.target;
+          if (el && el.getAttribute && el.getAttribute("data-close") === "1") closeResultModal();
+        });
+      }
+      if (modalCloseBtn) modalCloseBtn.addEventListener("click", closeResultModal);
+
+      if (modalRemoveBtn) {
+        modalRemoveBtn.addEventListener("click", () => {
+          if (pendingPickedNum == null) return;
+          const { min, max } = clampRange();
+          loadAvailable(min, max);
+
+          // ✅ loại số khỏi pool (không lặp)
+          commitPick(pendingPickedNum, min, max);
+
+          closeResultModal();
+        });
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && resultModal?.classList.contains("show")) closeResultModal();
+      });
+
+      // ===== Events =====
+      spinBtn.addEventListener("click", spin);
+      pickBtn.addEventListener("click", pickInstant);
+      resetBtn.addEventListener("click", resetHistory);
+
+      if (centerSpinBtn) {
+        centerSpinBtn.addEventListener("click", spin);
+        centerSpinBtn.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); spin(); }
+        });
+      }
+
+      [minEl, maxEl].forEach(el => {
+        el.addEventListener("change", () => {
+          const { min, max } = clampRange();
+          loadAvailable(min, max);
+          const seed = drawFromAvailable() ?? min;
+          renderStrip(seed, min, max, 11);
+          if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+        });
+        el.addEventListener("blur", () => {
+          const { min, max } = clampRange();
+          loadAvailable(min, max);
+          const seed = drawFromAvailable() ?? min;
+          renderStrip(seed, min, max, 11);
+          if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+        });
+      });
+
+      // ===== Init =====
+      const initRange = clampRange();
+      renderHistory();
+      loadAvailable(initRange.min, initRange.max);
+      drawWheel();
+
+      const seed = drawFromAvailable() ?? initRange.min;
+      renderStrip(seed, initRange.min, initRange.max, 11);
+
+      if (availableCount() === 0) statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
+    })();
+  </script>
+
+</body>
+</html>
