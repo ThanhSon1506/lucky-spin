@@ -84,7 +84,7 @@
     }
 
     .app {
-      width: min(1400px, 100%);
+      width: min(1550px, 100%);
       display: grid;
       grid-template-columns: 1.2fr 0.9fr 0.7fr;
       gap: 18px;
@@ -343,6 +343,7 @@
       background: rgba(0, 0, 0, 0.65) !important;
       color: #ffffff !important;
     }
+
     select#prizeSelect option {
       background: #003d80 !important;
       color: #ffffff !important;
@@ -615,15 +616,18 @@
           <div class="row">
             <div class="pill" style="width: 100%; justify-content: space-between;">
               <label for="prizeSelect">Giải đang quay:</label>
-              <select id="prizeSelect" style="background: rgba(0, 0, 0, 0.65); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.14); padding: 8px 12px; border-radius: 12px; outline: none; flex: 1; margin: 0 10px;">
+              <select id="prizeSelect"
+                style="background: rgba(0, 0, 0, 0.65); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.14); padding: 8px 12px; border-radius: 12px; outline: none; flex: 1; margin: 0 10px;">
                 <option value="Giải Đặc Biệt">Giải Đặc Biệt</option>
                 <option value="Giải Nhất">Giải Nhất</option>
                 <option value="Giải Nhì">Giải Nhì</option>
                 <option value="Giải Ba">Giải Ba</option>
               </select>
               <label for="prizeLimit">SL:</label>
-              <input id="prizeLimit" type="number" value="1" min="1" style="width: 70px; padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(0, 0, 0, 0.25); color: var(--text); outline: none; margin-left: 5px;" />
-              <span id="prizeCountInfo" style="margin-left: 10px; color: var(--accent-1); font-weight: 900;">(0/1)</span>
+              <input id="prizeLimit" type="number" value="1" min="1"
+                style="width: 70px; padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(0, 0, 0, 0.25); color: var(--text); outline: none; margin-left: 5px;" />
+              <span id="prizeCountInfo"
+                style="margin-left: 10px; color: var(--accent-1); font-weight: 900;">(0/1)</span>
             </div>
           </div>
 
@@ -726,7 +730,8 @@
         <div class="modal__hint" style="color: var(--accent-2);">Cảnh báo</div>
       </div>
       <div class="modal__body">
-        <div class="modal__title" id="limitModalText" style="font-size: 18px; line-height: 1.5; text-align: center; white-space: normal;">
+        <div class="modal__title" id="limitModalText"
+          style="font-size: 18px; line-height: 1.5; text-align: center; white-space: normal;">
           Giải đã đạt giới hạn. Bạn có chắc chắn muốn tiếp tục?
         </div>
       </div>
@@ -995,7 +1000,7 @@
         }).join("");
         countEl.textContent = String(history.length);
         lastResult.textContent = history[0]?.num ?? "—";
-        
+
         updatePrizeUI();
       }
 
