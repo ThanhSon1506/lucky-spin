@@ -718,6 +718,25 @@
     </div>
   </div>
 
+  <!-- ✅ LIMIT WARNING MODAL -->
+  <div class="modal" id="limitModal" aria-hidden="true">
+    <div class="modal__backdrop" id="limitModalBackdrop"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="limitModalTitle">
+      <div class="modal__head">
+        <div class="modal__hint" style="color: var(--accent-2);">Cảnh báo</div>
+      </div>
+      <div class="modal__body">
+        <div class="modal__title" id="limitModalText" style="font-size: 18px; line-height: 1.5; text-align: center; white-space: normal;">
+          Giải đã đạt giới hạn. Bạn có chắc chắn muốn tiếp tục?
+        </div>
+      </div>
+      <div class="modal__actions" style="justify-content: center; gap: 15px;">
+        <button class="btn danger" id="limitModalOk">Tiếp tục</button>
+        <button class="btn secondary" id="limitModalCancel">Hủy</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (() => {
       const $ = (id) => document.getElementById(id);
@@ -805,6 +824,7 @@
 
       // ===== State =====
       let isSpinning = false;
+      let isConfirming = false;
       let angle = 0;
 
       const DECOR_SLICES = 24;
@@ -869,6 +889,33 @@
       const prizeStatsEl = $("prizeStats");
 
       function savePrizeLimits() { try { localStorage.setItem(LIMITS_KEY, JSON.stringify(prizeLimits)); } catch { } }
+
+      function showConfirmModal(message) {
+        return new Promise((resolve) => {
+          const modal = $("limitModal");
+          const text = $("limitModalText");
+          const okBtn = $("limitModalOk");
+          const cancelBtn = $("limitModalCancel");
+          const backdrop = $("limitModalBackdrop");
+
+          text.textContent = message;
+          modal.classList.add("show");
+
+          function cleanup() {
+            modal.classList.remove("show");
+            okBtn.removeEventListener("click", onOk);
+            cancelBtn.removeEventListener("click", onCancel);
+            backdrop.removeEventListener("click", onCancel);
+          }
+
+          function onOk() { cleanup(); resolve(true); }
+          function onCancel() { cleanup(); resolve(false); }
+
+          okBtn.addEventListener("click", onOk);
+          cancelBtn.addEventListener("click", onCancel);
+          backdrop.addEventListener("click", onCancel);
+        });
+      }
 
       function getPrizeCounts() {
         const counts = {};
@@ -1228,8 +1275,8 @@
       }
 
       // ===== Actions =====
-      function spin() {
-        if (isSpinning) return;
+      async function spin() {
+        if (isSpinning || isConfirming) return;
         const { min, max } = clampRange();
         loadAvailable(min, max);
 
@@ -1240,9 +1287,10 @@
           const currentCount = counts[currentPrize] || 0;
           const limit = prizeLimits[currentPrize] || 1;
           if (currentCount >= limit) {
-            if (!confirm(`Giải "${currentPrize}" đã đạt giới hạn (${currentCount}/${limit}). Bạn có chắc chắn muốn quay tiếp không?`)) {
-              return;
-            }
+            isConfirming = true;
+            const ok = await showConfirmModal(`Giải "${currentPrize}" đã đạt giới hạn (${currentCount}/${limit}). Bạn có chắc chắn muốn quay tiếp không?`);
+            isConfirming = false;
+            if (!ok) return;
           }
         }
 
@@ -1323,8 +1371,8 @@
         requestAnimationFrame(frame);
       }
 
-      function pickInstant() {
-        if (isSpinning) return;
+      async function pickInstant() {
+        if (isSpinning || isConfirming) return;
         const { min, max } = clampRange();
         loadAvailable(min, max);
 
@@ -1335,9 +1383,10 @@
           const currentCount = counts[currentPrize] || 0;
           const limit = prizeLimits[currentPrize] || 1;
           if (currentCount >= limit) {
-            if (!confirm(`Giải "${currentPrize}" đã đạt giới hạn (${currentCount}/${limit}). Bạn có chắc chắn muốn quay tiếp không?`)) {
-              return;
-            }
+            isConfirming = true;
+            const ok = await showConfirmModal(`Giải "${currentPrize}" đã đạt giới hạn (${currentCount}/${limit}). Bạn có chắc chắn muốn quay tiếp không?`);
+            isConfirming = false;
+            if (!ok) return;
           }
         }
 
