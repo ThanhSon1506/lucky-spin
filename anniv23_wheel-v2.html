@@ -84,9 +84,9 @@
     }
 
     .app {
-      width: min(1250px, 100%);
+      width: min(1400px, 100%);
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
+      grid-template-columns: 1.2fr 0.9fr 0.7fr;
       gap: 18px;
       position: relative;
       z-index: 2;
@@ -337,6 +337,16 @@
       background: rgba(0, 0, 0, 0.25);
       color: var(--text);
       outline: none;
+    }
+
+    select#prizeSelect {
+      background: rgba(0, 0, 0, 0.65) !important;
+      color: #ffffff !important;
+    }
+    select#prizeSelect option {
+      background: #003d80 !important;
+      color: #ffffff !important;
+      padding: 10px;
     }
 
     .resultBox {
@@ -603,6 +613,21 @@
           </div>
 
           <div class="row">
+            <div class="pill" style="width: 100%; justify-content: space-between;">
+              <label for="prizeSelect">Giải đang quay:</label>
+              <select id="prizeSelect" style="background: rgba(0, 0, 0, 0.65); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.14); padding: 8px 12px; border-radius: 12px; outline: none; flex: 1; margin: 0 10px;">
+                <option value="Giải Đặc Biệt">Giải Đặc Biệt</option>
+                <option value="Giải Nhất">Giải Nhất</option>
+                <option value="Giải Nhì">Giải Nhì</option>
+                <option value="Giải Ba">Giải Ba</option>
+              </select>
+              <label for="prizeLimit">SL:</label>
+              <input id="prizeLimit" type="number" value="1" min="1" style="width: 70px; padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(0, 0, 0, 0.25); color: var(--text); outline: none; margin-left: 5px;" />
+              <span id="prizeCountInfo" style="margin-left: 10px; color: var(--accent-1); font-weight: 900;">(0/1)</span>
+            </div>
+          </div>
+
+          <div class="row">
             <div class="pill">
               <label for="min">Min</label>
               <input id="min" type="number" value="1501" min="1" max="1585" step="1" />
@@ -652,6 +677,19 @@
         </div>
         <div class="logo-bottom-wrap">
           <img src="images/anniv23_wheel/artboard.jpg" alt="Alpha ECC 23 Years" class="brand-logo-bottom" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd">
+        <div>
+          <div class="title" style="font-size: 16px;">Thống kê giải</div>
+        </div>
+      </div>
+      <div class="bd" style="padding: 12px;">
+        <div id="prizeStats" style="font-size: 13px; display: grid; gap: 8px;">
+          <!-- Sẽ được render bằng JS -->
         </div>
       </div>
     </div>
@@ -801,10 +839,95 @@
         if (raw) history = JSON.parse(raw) || [];
       } catch { history = []; }
 
+      // ===== Prize State =====
+      const LIMITS_KEY = `${STORAGE_NAMESPACE}:prize_limits`;
+      const LIMITS_VER_KEY = `${STORAGE_NAMESPACE}:limits_ver`;
+      const CURRENT_VER = "v2";
+
+      let prizeLimits = {
+        "Giải Đặc Biệt": 1,
+        "Giải Nhất": 1,
+        "Giải Nhì": 2,
+        "Giải Ba": 3
+      };
+
+      try {
+        const storedVer = localStorage.getItem(LIMITS_VER_KEY);
+        if (storedVer !== CURRENT_VER) {
+          localStorage.setItem(LIMITS_KEY, JSON.stringify(prizeLimits));
+          localStorage.setItem(LIMITS_VER_KEY, CURRENT_VER);
+        } else {
+          const rawLimits = localStorage.getItem(LIMITS_KEY);
+          if (rawLimits) prizeLimits = { ...prizeLimits, ...JSON.parse(rawLimits) };
+        }
+      } catch { }
+
+
+      const prizeSelect = $("prizeSelect");
+      const prizeLimitInput = $("prizeLimit");
+      const prizeCountInfo = $("prizeCountInfo");
+      const prizeStatsEl = $("prizeStats");
+
+      function savePrizeLimits() { try { localStorage.setItem(LIMITS_KEY, JSON.stringify(prizeLimits)); } catch { } }
+
+      function getPrizeCounts() {
+        const counts = {};
+        for (const p in prizeLimits) counts[p] = 0;
+        history.forEach(h => {
+          if (h.prize && counts[h.prize] !== undefined) counts[h.prize]++;
+        });
+        return counts;
+      }
+
+      function updatePrizeUI() {
+        if (!prizeSelect || !prizeLimitInput || !prizeCountInfo || !prizeStatsEl) return;
+        const currentPrize = prizeSelect.value;
+        const limit = prizeLimits[currentPrize] || 1;
+        prizeLimitInput.value = limit;
+
+        const counts = getPrizeCounts();
+        const currentCount = counts[currentPrize] || 0;
+        prizeCountInfo.textContent = `(${currentCount}/${limit})`;
+
+        // Render Prize Stats
+        let html = "";
+        for (const p in prizeLimits) {
+          const c = counts[p] || 0;
+          const lim = prizeLimits[p];
+          const nums = history.filter(h => h.prize === p).map(h => `<span style="color:var(--accent-1); font-weight:900; margin-right:6px;">${h.num}</span>`).reverse().join(", ");
+          html += `
+            <div style="display: flex; flex-direction: column; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
+              <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 14px;">
+                <span>${p}</span>
+                <span style="color:var(--accent-1); font-weight:900;">(${c}/${lim})</span>
+              </div>
+              <div style="margin-top: 2px; font-family: monospace; font-size: 13px; word-break: break-all;">
+                ${nums || '<span style="color:var(--muted);">—</span>'}
+              </div>
+            </div>
+          `;
+        }
+        prizeStatsEl.innerHTML = html;
+      }
+
+      if (prizeSelect) prizeSelect.addEventListener("change", updatePrizeUI);
+      if (prizeLimitInput) {
+        prizeLimitInput.addEventListener("change", () => {
+          const currentPrize = prizeSelect.value;
+          let val = parseInt(prizeLimitInput.value, 10);
+          if (isNaN(val) || val < 1) val = 1;
+          prizeLimits[currentPrize] = val;
+          prizeLimitInput.value = val;
+          savePrizeLimits();
+          updatePrizeUI();
+        });
+      }
+
       function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch { } }
 
       function pushHistory(num, type) {
-        history.unshift({ num, type, t: Date.now() });
+        const currentPrize = prizeSelect ? prizeSelect.value : "Khác";
+        history.unshift({ num, type, t: Date.now(), prize: currentPrize });
         if (history.length > 200) history.length = 200;
         saveHistory();
         renderHistory();
@@ -813,17 +936,20 @@
       function renderHistory() {
         historyBody.innerHTML = history.map((h, idx) => {
           const d = new Date(h.t);
+          const prizeBadge = h.prize ? `<span class="badge" style="background:rgba(0,229,255,0.1); border-color:rgba(0,229,255,0.3); color:var(--accent-1); margin-right:4px;">${h.prize}</span>` : '';
           return `
           <tr>
             <td>${history.length - idx}</td>
             <td class="num">${h.num}</td>
-            <td><span class="badge">${h.type}</span></td>
+            <td>${prizeBadge}<span class="badge">${h.type}</span></td>
             <td class="mono">${fmtTime(d)}</td>
           </tr>
         `;
         }).join("");
         countEl.textContent = String(history.length);
         lastResult.textContent = history[0]?.num ?? "—";
+        
+        updatePrizeUI();
       }
 
       // ===== Unique numbers (NO REPEAT until RESET) =====
@@ -1107,6 +1233,19 @@
         const { min, max } = clampRange();
         loadAvailable(min, max);
 
+        // Check limit
+        if (typeof getPrizeCounts === "function" && prizeSelect) {
+          const currentPrize = prizeSelect.value;
+          const counts = getPrizeCounts();
+          const currentCount = counts[currentPrize] || 0;
+          const limit = prizeLimits[currentPrize] || 1;
+          if (currentCount >= limit) {
+            if (!confirm(`Giải "${currentPrize}" đã đạt giới hạn (${currentCount}/${limit}). Bạn có chắc chắn muốn quay tiếp không?`)) {
+              return;
+            }
+          }
+        }
+
         if (availableCount() <= 0) {
           statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
           return;
@@ -1188,6 +1327,19 @@
         if (isSpinning) return;
         const { min, max } = clampRange();
         loadAvailable(min, max);
+
+        // Check limit
+        if (typeof getPrizeCounts === "function" && prizeSelect) {
+          const currentPrize = prizeSelect.value;
+          const counts = getPrizeCounts();
+          const currentCount = counts[currentPrize] || 0;
+          const limit = prizeLimits[currentPrize] || 1;
+          if (currentCount >= limit) {
+            if (!confirm(`Giải "${currentPrize}" đã đạt giới hạn (${currentCount}/${limit}). Bạn có chắc chắn muốn quay tiếp không?`)) {
+              return;
+            }
+          }
+        }
 
         if (availableCount() <= 0) {
           statusPill.textContent = "Hết số (bấm RESET để bắt đầu lại)";
